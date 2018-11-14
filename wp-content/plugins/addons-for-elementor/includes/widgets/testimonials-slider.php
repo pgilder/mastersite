@@ -438,6 +438,8 @@ class LAE_Testimonials_Slider_Widget extends Widget_Base {
 
         $settings = $this->get_settings_for_display();
 
+        $settings = apply_filters('lae_testimonials_slider_' . $this->get_id() . '_settings', $settings);
+
         $slider_options = [
             'slide_animation' => $settings['slide_animation'],
             'direction' => $settings['direction'],
@@ -448,62 +450,63 @@ class LAE_Testimonials_Slider_Widget extends Widget_Base {
             'pause_on_hover' => ('yes' === $settings['pause_on_hover']),
             'pause_on_action' => ('yes' === $settings['pause_on_action'])
         ];
-        ?>
 
-        <div class="lae-testimonials-slider lae-flexslider lae-container"
-             data-settings='<?php echo wp_json_encode($slider_options); ?>'>
+        $output = '<div class="lae-testimonials-slider lae-flexslider lae-container" data-settings=\'' . wp_json_encode($slider_options) . '\'>';
 
-            <div class="lae-slides">
+        $output .= '<div class="lae-slides">';
 
-                <?php foreach ($settings['testimonials'] as $testimonial) : ?>
+        foreach ($settings['testimonials'] as $testimonial) :
 
-                <div class="lae-slide lae-testimonial-wrapper">
+            $child_output = '<div class="lae-slide lae-testimonial-wrapper">';
 
-                    <div class="lae-testimonial">
+            $child_output .= '<div class="lae-testimonial">';
 
-                        <div class="lae-testimonial-text">
+            $child_output .= '<div class="lae-testimonial-text">';
 
-                            <i class="lae-icon-quote"></i>
+            $child_output .= '<i class="lae-icon-quote"></i>';
 
-                            <?php echo $this->parse_text_editor($testimonial['testimonial_text']); ?>
+            $child_output .= $this->parse_text_editor($testimonial['testimonial_text']);
 
-                        </div>
+            $child_output .= '</div>';
 
-                        <div class="lae-testimonial-user">
+            $child_output .= '<div class="lae-testimonial-user">';
 
-                            <div class="lae-image-wrapper">
+            $child_output .= '<div class="lae-image-wrapper">';
 
-                                <?php $client_image = $testimonial['client_image']; ?>
+            $client_image = $testimonial['client_image'];
 
-                                <?php if (!empty($client_image)): ?>
+            if (!empty($client_image)):
 
-                                    <?php echo wp_get_attachment_image($client_image['id'], 'thumbnail', false, array('class' => 'lae-image full')); ?>
+                $child_output .= wp_get_attachment_image($client_image['id'], 'thumbnail', false, array('class' => 'lae-image full'));
 
-                                <?php endif; ?>
+            endif;
 
-                            </div>
+            $child_output .= '</div><!-- .lae-image-wrapper -->';
 
-                            <div class="lae-text">
+            $child_output .= '<div class="lae-text">';
 
-                                <<?php echo $settings['title_tag']; ?> class="lae-author-name"><?php echo esc_html($testimonial['client_name']) ?></<?php echo $settings['title_tag']; ?>>
+            $child_output .= '<' . $settings['title_tag'] . ' class="lae-author-name">' . esc_html($testimonial['client_name']) . '</' . $settings['title_tag'] . '>';
 
-                            <div class="lae-author-credentials"><?php echo wp_kses_post($testimonial['credentials']); ?></div>
+            $child_output .= '<div class="lae-author-credentials">' . wp_kses_post($testimonial['credentials']) . '</div>';
 
-                        </div>
+            $child_output .= '</div>';
 
-                    </div>
+            $child_output .= '</div><!-- .lae-testimonial-user -->';
 
-                </div>
+            $child_output .= '</div><!-- .lae-testimonial -->';
 
-            </div>
+            $child_output .= '</div><!-- .lae-testimonial-wrapper.lae-slide -->';
 
-            <?php endforeach; ?>
+            $output .= apply_filters('lae_testimonials_slide_output', $child_output, $testimonial, $settings);
 
-        </div>
+        endforeach;
 
-        </div>
+        $output .= '</div><!-- .lae-slides -->';
 
-        <?php
+        $output .= '</div><!-- .lae-testimonials-slider -->';
+
+        echo apply_filters('lae_testimonials_slider_output', $output, $settings);
+
     }
 
     protected function content_template() {

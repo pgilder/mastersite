@@ -39,34 +39,21 @@ class LAE_Pricing_Table_Widget extends Widget_Base {
 
         ), $atts));
 
-        ob_start();
+        $output = '<div class="lae-pricing-item">';
 
-        ?>
+        $output .= '<div class="lae-title">' . htmlspecialchars_decode(wp_kses_post($title)) . '</div>';
 
-        <div class="lae-pricing-item">
+        $output .= '<div class="lae-value-wrap">';
 
-            <div class="lae-title">
+        $output .= '<div class="lae-value">';
 
-                <?php echo htmlspecialchars_decode(wp_kses_post($title)); ?>
+        $output .= htmlspecialchars_decode(wp_kses_post($value));
 
-            </div>
+        $output .= '</div>';
 
-            <div class="lae-value-wrap">
+        $output .= '</div>';
 
-                <div class="lae-value">
-
-                    <?php echo htmlspecialchars_decode(wp_kses_post($value)); ?>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <?php
-
-
-        $output = ob_get_clean();
+        $output .= '</div>';
 
         return $output;
     }
@@ -91,7 +78,7 @@ class LAE_Pricing_Table_Widget extends Widget_Base {
         return [
             'lae-frontend-scripts',
             'jquery-flexslider',
-            'waypoints'
+            'lae-waypoints'
         ];
     }
 
@@ -525,89 +512,74 @@ class LAE_Pricing_Table_Widget extends Widget_Base {
 
         $settings = $this->get_settings_for_display();
 
+        $settings = apply_filters('lae_pricing_table_' . $this->get_id() . '_settings', $settings);
+
         if (empty($settings['pricing_plans']))
             return;
 
-        ?>
+        $output = '<div class="lae-pricing-table lae-grid-container ' . lae_get_grid_classes($settings) . '">';
 
-        <div class="lae-pricing-table lae-grid-container <?php echo lae_get_grid_classes($settings); ?>">
+        foreach ($settings['pricing_plans'] as $pricing_plan) :
 
-            <?php
+            $pricing_title = esc_html($pricing_plan['pricing_title']);
+            $tagline = esc_html($pricing_plan['tagline']);
+            $price_tag = htmlspecialchars_decode(wp_kses_post($pricing_plan['price_tag']));
+            $pricing_img = $pricing_plan['pricing_image'];
+            $pricing_url = (empty($pricing_plan['button_url']['url'])) ? '#' : esc_url($pricing_plan['button_url']['url']);
+            $pricing_button_text = esc_html($pricing_plan['button_text']);
+            $button_new_window = esc_html($pricing_plan['button_url']['is_external']);
+            $highlight = ($pricing_plan['highlight'] == 'yes');
 
-            foreach ($settings['pricing_plans'] as $pricing_plan) :
+            $price_tag = (empty($price_tag)) ? '' : $price_tag;
 
-                $pricing_title = esc_html($pricing_plan['pricing_title']);
-                $tagline = esc_html($pricing_plan['tagline']);
-                $price_tag = htmlspecialchars_decode(wp_kses_post($pricing_plan['price_tag']));
-                $pricing_img = $pricing_plan['pricing_image'];
-                $pricing_url = (empty($pricing_plan['button_url']['url'])) ? '#' : esc_url($pricing_plan['button_url']['url']);
-                $pricing_button_text = esc_html($pricing_plan['button_text']);
-                $button_new_window = esc_html($pricing_plan['button_url']['is_external']);
-                $highlight = ($pricing_plan['highlight'] == 'yes');
+            list($animate_class, $animation_attr) = lae_get_animation_atts($pricing_plan['widget_animation']);
 
-                $price_tag = (empty($price_tag)) ? '' : $price_tag;
+            $child_output = '<div class="lae-grid-item lae-pricing-plan ' . ($highlight ? ' lae-highlight' : '') . ' ' . $animate_class . '" ' . $animation_attr . '>';
 
-                list($animate_class, $animation_attr) = lae_get_animation_atts($pricing_plan['widget_animation']);
+            $child_output .= '<div class="lae-top-header">';
 
-                ?>
+            if (!empty($tagline))
+                $child_output .= '<p class="lae-tagline center">' . $tagline . '</p>';
 
-                <div class="lae-grid-item lae-pricing-plan <?php echo ($highlight ? ' lae-highlight' : ''); ?> <?php echo $animate_class; ?>"<?php echo $animation_attr; ?>>
+            $child_output .= '<' . $settings['plan_name_tag'] . ' class="lae-plan-name lae-center">' . $pricing_title . '</' . $settings['plan_name_tag'] . '>';
 
-                    <div class="lae-top-header">
+            if (!empty($pricing_img)) :
+                $child_output .= wp_get_attachment_image($pricing_img['id'], 'full', false, array('class' => 'lae-image full', 'alt' => $pricing_title));
 
-                        <?php if (!empty($tagline))
-                            echo '<p class="lae-tagline center">' . $tagline . '</p>'; ?>
+            endif;
 
-                        <<?php echo $settings['plan_name_tag']; ?> class="lae-plan-name lae-center"><?php echo $pricing_title; ?></<?php echo $settings['plan_name_tag']; ?>>
+            $child_output .= '</div>';
 
-                        <?php
+            $child_output .= '<' . $settings['plan_price_tag'] . ' class="lae-plan-price lae-plan-header lae-center">';
 
-                        if (!empty($pricing_img)) :
-                            echo wp_get_attachment_image($pricing_img['id'], 'full', false, array('class' => 'lae-image full', 'alt' => $pricing_title));
-                        endif;
+            $child_output .= '<span class="lae-text">' . wp_kses_post($price_tag) .'</span>';
 
-                        ?>
+            $child_output .= '</' . $settings['plan_price_tag'] . '>';
 
-                    </div>
+            $child_output .= '<div class="lae-plan-details">';
 
-                    <<?php echo $settings['plan_price_tag']; ?> class="lae-plan-price lae-plan-header lae-center">
+            $child_output .= $this->parse_text_editor($pricing_plan['pricing_content']);
 
-                        <span class="lae-text">
+            $child_output .= '</div><!-- .lae-plan-details -->';
 
-                            <?php echo wp_kses_post($price_tag); ?>
+            $child_output .= '<div class="lae-purchase">';
 
-                        </span>
+            $child_output .= '<a class="lae-button default" href="' . esc_url($pricing_url) . '"' . (!empty($button_new_window) ? ' target="_blank"' : '') . '>' . esc_html($pricing_button_text) . '</a>';
 
-                    </<?php echo $settings['plan_price_tag']; ?>>
+            $child_output .= '</div>';
 
-                    <div class="lae-plan-details">
+            $child_output .= '</div><!-- .lae-pricing-plan -->';
 
-                        <?php echo $this->parse_text_editor($pricing_plan['pricing_content']) ?>
+            $output .= apply_filters('lae_pricing_plan_output', $child_output, $pricing_plan, $settings);
 
-                    </div><!-- .lae-plan-details -->
+        endforeach;
 
-                    <div class="lae-purchase">
+        $output .= '</div><!-- .lae-pricing-table -->';
 
-                        <a class="lae-button default" href="<?php echo esc_url($pricing_url); ?>"
-                            <?php if (!empty($button_new_window))
-                                echo 'target="_blank"'; ?>><?php echo esc_html($pricing_button_text); ?></a>
+        $output .= '<div class="lae-clear"></div>';
 
-                    </div>
+        echo apply_filters('lae_pricing_table_output', $output, $settings);
 
-                </div>
-                <!-- .lae-pricing-plan -->
-
-                <?php
-
-            endforeach;
-
-            ?>
-
-        </div><!-- .lae-pricing-table -->
-
-        <div class="lae-clear"></div>
-
-        <?php
     }
 
     protected function content_template() {

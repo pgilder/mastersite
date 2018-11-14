@@ -297,12 +297,31 @@ abstract class Widget_Base extends Element_Base {
 	 * @return array Default edit tools.
 	 */
 	protected static function get_default_edit_tools() {
-		return [
+		$widget_label = __( 'Widget', 'elementor' );
+
+		$edit_tools = [
 			'edit' => [
 				'title' => __( 'Edit', 'elementor' ),
 				'icon' => 'edit',
 			],
 		];
+
+		if ( self::is_edit_buttons_enabled() ) {
+			$edit_tools += [
+				'duplicate' => [
+					/* translators: %s: Widget label */
+					'title' => sprintf( __( 'Duplicate %s', 'elementor' ), $widget_label ),
+					'icon' => 'clone',
+				],
+				'remove' => [
+					/* translators: %s: Widget label */
+					'title' => sprintf( __( 'Remove %s', 'elementor' ), $widget_label ),
+					'icon' => 'close',
+				],
+			];
+		}
+
+		return $edit_tools;
 	}
 
 	/**
@@ -346,6 +365,10 @@ abstract class Widget_Base extends Element_Base {
 		];
 
 		return array_merge( parent::_get_initial_config(), $config );
+	}
+
+	protected function should_print_empty() {
+		return false;
 	}
 
 	/**
@@ -446,6 +469,22 @@ abstract class Widget_Base extends Element_Base {
 	 * @access public
 	 */
 	public function render_content() {
+		ob_start();
+
+		$skin = $this->get_current_skin();
+		if ( $skin ) {
+			$skin->set_parent( $this );
+			$skin->render();
+		} else {
+			$this->render();
+		}
+
+		$widget_content = ob_get_clean();
+
+		if ( empty( $widget_content ) ) {
+			return;
+		}
+
 		/**
 		 * Before widget render content.
 		 *
@@ -464,17 +503,6 @@ abstract class Widget_Base extends Element_Base {
 		?>
 		<div class="elementor-widget-container">
 			<?php
-			ob_start();
-
-			$skin = $this->get_current_skin();
-			if ( $skin ) {
-				$skin->set_parent( $this );
-				$skin->render();
-			} else {
-				$this->render();
-			}
-
-			$widget_content = ob_get_clean();
 
 			/**
 			 * Render widget content.

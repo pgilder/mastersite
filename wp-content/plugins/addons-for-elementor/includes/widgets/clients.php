@@ -41,7 +41,7 @@ class LAE_Clients_Widget extends Widget_Base {
     public function get_script_depends() {
         return [
             'lae-frontend-scripts',
-            'waypoints'
+            'lae-waypoints'
         ];
     }
 
@@ -263,57 +263,54 @@ class LAE_Clients_Widget extends Widget_Base {
     protected function render() {
 
         $settings = $this->get_settings_for_display();
-        ?>
 
-        <?php list($animate_class, $animation_attr) = lae_get_animation_atts($settings['widget_animation']); ?>
+        $settings = apply_filters('lae_clients_' . $this->get_id() . '_settings', $settings);
 
-        <div class="lae-clients lae-gapless-grid">
+        list($animate_class, $animation_attr) = lae_get_animation_atts($settings['widget_animation']);
 
-            <div class="lae-grid-container <?php echo lae_get_grid_classes($settings); ?> ">
+        $output = '<div class="lae-clients lae-gapless-grid">';
 
-                <?php foreach ($settings['clients'] as $client): ?>
+        $output .= '<div class="lae-grid-container ' . lae_get_grid_classes($settings) . '">';
 
-                    <div class="lae-grid-item lae-client<?php echo $animate_class; ?>" <?php echo $animation_attr; ?>>
+        foreach ($settings['clients'] as $client):
 
-                        <?php if (!empty($client['client_image'])): ?>
+            $child_output = '<div class="lae-grid-item lae-client ' . $animate_class . '" ' . $animation_attr . '>';
 
-                            <?php echo wp_get_attachment_image($client['client_image']['id'], 'full', false, array('class' => 'lae-image full', 'alt' => $client['client_name'])); ?>
+            if (!empty($client['client_image'])):
 
-                        <?php endif; ?>
+                $child_output .= wp_get_attachment_image($client['client_image']['id'], 'full', false, array('class' => 'lae-image full', 'alt' => $client['client_name']));
 
-                        <?php if (!empty($client['client_link']) && !empty($client['client_link']['url'])): ?>
+            endif;
 
-                            <?php $target = $client['client_link']['is_external'] ? 'target="_blank"' : ''; ?>
+            if (!empty($client['client_link']) && !empty($client['client_link']['url'])):
 
-                            <div class="lae-client-name">
+                $target = $client['client_link']['is_external'] ? 'target="_blank"' : '';
 
-                                <a href="<?php echo esc_url($client['client_link']['url']); ?>"
-                                   title="<?php echo esc_html($client['client_name']); ?>"
-                                    <?php echo $target; ?>><?php echo wp_kses_post($client['client_name']); ?></a>
-                            </div>
+                $child_output .= '<div class="lae-client-name">';
 
-                        <?php else: ?>
+                $child_output .= '<a href="' . esc_url($client['client_link']['url']) . ' " title="' . esc_html($client['client_name']) . '" ' . $target . '>' . wp_kses_post($client['client_name']) . '</a>';
 
-                            <div class="lae-client-name"><?php echo wp_kses_post($client['client_name']); ?></div>
+                $child_output .= '</div>';
 
-                        <?php endif; ?>
+            else:
 
+                $child_output .= '<div class="lae-client-name">' . wp_kses_post($client['client_name']) . '</div>';
 
-                        <div class="lae-image-overlay"></div>
+            endif;
 
-                    </div>
+            $child_output .= '<div class="lae-image-overlay"></div>';
 
-                <?php
+            $child_output .= '</div><!-- .lae-client -->';
 
-                endforeach;
+            $output .= apply_filters('lae_client_item_output', $child_output, $client, $settings);
 
-                ?>
+        endforeach;
 
-            </div>
+        $output .= '</div>';
 
-        </div>
+        $output .= '</div><!-- .lae-clients -->';
 
-        <?php
+        echo apply_filters('lae_clients_output', $output, $settings);
     }
 
     protected function content_template() {

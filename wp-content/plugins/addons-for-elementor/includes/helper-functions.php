@@ -31,6 +31,26 @@ function lae_get_terms( $taxonomy )
     return $term_coll;
 }
 
+function lae_entry_terms_list(
+    $taxonomy = 'category',
+    $separator = ', ',
+    $before = ' ',
+    $after = ' '
+)
+{
+    global  $post ;
+    $output = '<span class="lae-' . $taxonomy . '-list">';
+    $output .= get_the_term_list(
+        $post->ID,
+        $taxonomy,
+        $before,
+        $separator,
+        $after
+    );
+    $output .= '</span>';
+    return $output;
+}
+
 function lae_get_chosen_terms( $query_args )
 {
     $chosen_terms = array();
@@ -65,27 +85,8 @@ function lae_get_chosen_terms( $query_args )
     
     // Remove duplicates
     $taxonomies = array_unique( $taxonomies );
-    return array( $chosen_terms, $taxonomies );
-}
-
-function lae_entry_terms_list(
-    $taxonomy = 'category',
-    $separator = ', ',
-    $before = ' ',
-    $after = ' '
-)
-{
-    global  $post ;
-    $output = '<span class="lae-' . $taxonomy . '-list">';
-    $output .= get_the_term_list(
-        $post->ID,
-        $taxonomy,
-        $before,
-        $separator,
-        $after
-    );
-    $output .= '</span>';
-    return $output;
+    $return = array( $chosen_terms, $taxonomies );
+    return apply_filters( 'lae_chosen_taxonomy_terms', $return, $query_args );
 }
 
 function lae_get_taxonomy_info( $taxonomy )
@@ -106,7 +107,7 @@ function lae_get_taxonomy_info( $taxonomy )
         $output .= '</span>';
     }
     
-    return $output;
+    return apply_filters( 'lae_taxonomy_info', $output, $taxonomy );
 }
 
 function lae_get_info_for_taxonomies( $taxonomies )
@@ -115,7 +116,18 @@ function lae_get_info_for_taxonomies( $taxonomies )
     foreach ( $taxonomies as $taxonomy ) {
         $output .= lae_get_taxonomy_info( $taxonomy );
     }
-    return $output;
+    return apply_filters( 'lae_taxonomies_info', $output, $taxonomies );
+}
+
+// get all registered taxonomies
+function lae_get_taxonomies_map()
+{
+    $map = array();
+    $taxonomies = get_taxonomies();
+    foreach ( $taxonomies as $taxonomy ) {
+        $map[$taxonomy] = $taxonomy;
+    }
+    return apply_filters( 'lae_taxonomies_map', $map );
 }
 
 function lae_entry_published( $format = null )
@@ -124,15 +136,15 @@ function lae_entry_published( $format = null )
         $format = get_option( 'date_format' );
     }
     $published = '<span class="published"><abbr title="' . sprintf( get_the_time( esc_html__( 'l, F, Y, g:i a', 'livemesh-el-addons' ) ) ) . '">' . sprintf( get_the_time( $format ) ) . '</abbr></span>';
-    return $published;
+    return apply_filters( 'lae_entry_published', $published, $format );
     $link = '<span class="published">' . '<a href="' . get_day_link( get_the_time( esc_html__( 'Y', 'livemesh-el-addons' ) ), get_the_time( esc_html__( 'm', 'livemesh-el-addons' ) ), get_the_time( esc_html__( 'd', 'livemesh-el-addons' ) ) ) . '" title="' . sprintf( get_the_time( esc_html__( 'l, F, Y, g:i a', 'livemesh-el-addons' ) ) ) . '">' . '<span class="updated">' . get_the_time( $format ) . '</span>' . '</a></span>';
-    return $link;
+    return apply_filters( 'lae_entry_published_link', $link, $format );
 }
 
 function lae_entry_author()
 {
     $author = '<span class="author vcard">' . esc_html__( 'By ', 'livemesh-el-addons' ) . '<a class="url fn n" href="' . esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ) . '" title="' . esc_attr( get_the_author_meta( 'display_name' ) ) . '">' . esc_html( get_the_author_meta( 'display_name' ) ) . '</a></span>';
-    return $author;
+    return apply_filters( 'lae_entry_author', $author );
 }
 
 /* Return the css class name to help achieve the number of columns specified for mobile resolution */
@@ -144,7 +156,12 @@ function lae_get_grid_classes( $settings, $columns_field = 'per_line' )
     $grid_classes .= $settings[$columns_field . '_tablet'];
     $grid_classes .= ' lae-grid-mobile-';
     $grid_classes .= $settings[$columns_field . '_mobile'];
-    return $grid_classes;
+    return apply_filters(
+        'lae_grid_classes',
+        $grid_classes,
+        $settings,
+        $columns_field
+    );
 }
 
 /*
@@ -164,17 +181,6 @@ function lae_to_boolean( $value )
     
     return (bool) $value;
     // Make sure you do not touch the value if the value is not a string
-}
-
-// get all registered taxonomies
-function lae_get_taxonomies_map()
-{
-    $map = array();
-    $taxonomies = get_taxonomies();
-    foreach ( $taxonomies as $taxonomy ) {
-        $map[$taxonomy] = $taxonomy;
-    }
-    return $map;
 }
 
 /**
@@ -215,7 +221,12 @@ function lae_get_option( $option_name, $default = null )
         $option_value = $default;
     }
     
-    return $option_value;
+    return apply_filters(
+        'lae_get_option',
+        $option_value,
+        $option_name,
+        $default
+    );
 }
 
 function lae_update_option( $option_name, $option_value )
@@ -370,6 +381,8 @@ function lae_get_image_html( $image_setting, $image_size_key, $settings )
         $image_class .= " attachment-{$size} size-{$size}";
         $image_attr = array(
             'class' => trim( $image_class ),
+            'alt'   => get_the_title( $attachment_id ),
+            'title' => lae_get_image_alt( $attachment_id ),
         );
         $image_html .= wp_get_attachment_image(
             $attachment_id,
@@ -396,7 +409,13 @@ function lae_get_image_html( $image_setting, $image_size_key, $settings )
     
     }
     
-    return $image_html;
+    return apply_filters(
+        'lae_attachment_image_html',
+        $image_html,
+        $image_setting,
+        $image_size_key,
+        $settings
+    );
 }
 
 function lae_get_image_alt( $attachment_id )
@@ -420,7 +439,54 @@ function lae_get_image_alt( $attachment_id )
         }
     }
     
-    return trim( strip_tags( $alt ) );
+    $alt = trim( strip_tags( $alt ) );
+    return apply_filters( 'lae_image_alt', $alt, $attachment_id );
+}
+
+/** Isotope filtering support for Portfolio pages **/
+function lae_get_taxonomy_terms_filter( $taxonomies, $chosen_terms = array() )
+{
+    $output = '';
+    $terms = array();
+    
+    if ( empty($chosen_terms) ) {
+        foreach ( $taxonomies as $taxonomy ) {
+            global  $wp_version ;
+            
+            if ( version_compare( $wp_version, '4.5', '>=' ) ) {
+                $taxonomy_terms = get_terms( array(
+                    'taxonomy' => $taxonomy,
+                ) );
+            } else {
+                $taxonomy_terms = get_terms( $taxonomy );
+            }
+            
+            if ( !empty($taxonomy_terms) && !is_wp_error( $taxonomy_terms ) ) {
+                $terms = array_merge( $terms, $taxonomy_terms );
+            }
+        }
+    } else {
+        $terms = $chosen_terms;
+    }
+    
+    
+    if ( !empty($terms) ) {
+        $output .= '<div class="lae-taxonomy-filter">';
+        $output .= '<div class="lae-filter-item segment-0 lae-active"><a data-value="*" href="#">' . esc_html__( 'All', 'livemesh-el-addons' ) . '</a></div>';
+        $segment_count = 1;
+        foreach ( $terms as $term ) {
+            $output .= '<div class="lae-filter-item segment-' . intval( $segment_count ) . '"><a href="#" data-value=".term-' . intval( $term->term_id ) . '" title="' . esc_html__( 'View all items filed under ', 'livemesh-el-addons' ) . esc_attr( $term->name ) . '">' . esc_html( $term->name ) . '</a></div>';
+            $segment_count++;
+        }
+        $output .= '</div>';
+    }
+    
+    return apply_filters(
+        'lae_taxonomy_terms_filter',
+        $output,
+        $taxonomies,
+        $chosen_terms
+    );
 }
 
 function lae_get_animation_atts( $animation )
@@ -469,56 +535,32 @@ function lae_get_animation_atts( $animation )
         $animation_attr = ' data-animation="' . esc_attr( $animation ) . '"';
     }
     
-    return array( $animate_class, $animation_attr );
+    $return = array( $animate_class, $animation_attr );
+    return apply_filters( 'lae_animation_attributes', $return, $animation );
 }
 
 function lae_get_animation_options()
 {
-    return array(
+    return apply_filters( 'lae_animation_options', array(
         'none'        => __( 'None', 'livemesh-el-addons' ),
         'fadeIn'      => __( 'Fade In', 'livemesh-el-addons' ),
         'fadeInLeft'  => __( 'Fade In Left', 'livemesh-el-addons' ),
         'fadeInRight' => __( 'Fade In Right', 'livemesh-el-addons' ),
-    );
+    ) );
 }
 
-/** Isotope filtering support for Portfolio pages **/
-function lae_get_taxonomy_terms_filter( $taxonomies, $chosen_terms = array() )
+function lae_get_template_part( $template_name, $settings )
 {
-    $output = '';
-    $terms = array();
+    // Allow the user to place the templates in a different folder
+    $templates_folder = apply_filters( 'lae_templates_folder', 'elementor-addons' );
+    $template = locate_template( $templates_folder . '/' . $template_name . '.php' );
+    /* If template is found */
     
-    if ( empty($chosen_terms) ) {
-        foreach ( $taxonomies as $taxonomy ) {
-            global  $wp_version ;
-            
-            if ( version_compare( $wp_version, '4.5', '>=' ) ) {
-                $taxonomy_terms = get_terms( array(
-                    'taxonomy' => $taxonomy,
-                ) );
-            } else {
-                $taxonomy_terms = get_terms( $taxonomy );
-            }
-            
-            if ( !empty($taxonomy_terms) && !is_wp_error( $taxonomy_terms ) ) {
-                $terms = array_merge( $terms, $taxonomy_terms );
-            }
-        }
-    } else {
-        $terms = $chosen_terms;
+    if ( '' !== $template ) {
+        ob_start();
+        include $template;
+        return ob_get_clean();
     }
     
-    
-    if ( !empty($terms) ) {
-        $output .= '<div class="lae-taxonomy-filter">';
-        $output .= '<div class="lae-filter-item segment-0 lae-active"><a data-value="*" href="#">' . esc_html__( 'All', 'livemesh-el-addons' ) . '</a></div>';
-        $segment_count = 1;
-        foreach ( $terms as $term ) {
-            $output .= '<div class="lae-filter-item segment-' . intval( $segment_count ) . '"><a href="#" data-value=".term-' . intval( $term->term_id ) . '" title="' . esc_html__( 'View all items filed under ', 'livemesh-el-addons' ) . esc_attr( $term->name ) . '">' . esc_html( $term->name ) . '</a></div>';
-            $segment_count++;
-        }
-        $output .= '</div>';
-    }
-    
-    return $output;
+    return null;
 }

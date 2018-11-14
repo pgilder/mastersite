@@ -141,6 +141,14 @@ class Autoloader {
 			'replacement' => 'Core\Responsive\Responsive',
 			'version' => '2.1.0',
 		],
+		'Admin' => [
+			'replacement' => 'Core\Admin\Admin',
+			'version' => '2.2.0',
+		],
+		'Core\Ajax' => [
+			'replacement' => 'Core\Common\Modules\Ajax\Module',
+			'version' => '2.3.0',
+		],
 	];
 
 	/**

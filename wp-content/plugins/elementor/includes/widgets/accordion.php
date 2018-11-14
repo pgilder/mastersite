@@ -94,7 +94,7 @@ class Widget_Accordion extends Widget_Base {
 			[
 				'label' => __( 'Title & Content', 'elementor' ),
 				'type' => Controls_Manager::TEXT,
-				'default' => __( 'Accordion Title' , 'elementor' ),
+				'default' => __( 'Accordion Title', 'elementor' ),
 				'dynamic' => [
 					'active' => true,
 				],
@@ -121,11 +121,11 @@ class Widget_Accordion extends Widget_Base {
 				'default' => [
 					[
 						'tab_title' => __( 'Accordion #1', 'elementor' ),
-						'tab_content' => __( 'I am item content. Click edit button to change this text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.', 'elementor' ),
+						'tab_content' => __( 'Click edit button to change this text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.', 'elementor' ),
 					],
 					[
 						'tab_title' => __( 'Accordion #2', 'elementor' ),
-						'tab_content' => __( 'I am item content. Click edit button to change this text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.', 'elementor' ),
+						'tab_content' => __( 'Click edit button to change this text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.', 'elementor' ),
 					],
 				],
 				'title_field' => '{{{ tab_title }}}',
@@ -494,7 +494,7 @@ class Widget_Accordion extends Widget_Base {
 							<i class="elementor-accordion-icon-opened <?php echo esc_attr( $settings['icon_active'] ); ?>"></i>
 						</span>
 						<?php endif; ?>
-						<?php echo $item['tab_title']; ?>
+						<a href=""><?php echo $item['tab_title']; ?></a>
 					</<?php echo $settings['title_html_tag']; ?>>
 					<div <?php echo $this->get_render_attribute_string( $tab_content_setting_key ); ?>><?php echo $this->parse_text_editor( $item['tab_content'] ); ?></div>
 				</div>
@@ -550,7 +550,7 @@ class Widget_Accordion extends Widget_Base {
 								<i class="elementor-accordion-icon-opened {{ settings.icon_active }}"></i>
 							</span>
 							<# } #>
-							{{{ item.tab_title }}}
+							<a href="">{{{ item.tab_title }}}</a>
 						</{{{ settings.title_html_tag }}}>
 						<div {{{ view.getRenderAttributeString( tabContentKey ) }}}>{{{ item.tab_content }}}</div>
 					</div>

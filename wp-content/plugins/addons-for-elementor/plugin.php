@@ -30,6 +30,7 @@ if ( !class_exists( 'Livemesh_Elementor_Addons' ) ) {
                 self::$instance->setup_debug_constants();
                 self::$instance->includes();
                 self::$instance->hooks();
+                self::$instance->template_hooks();
             }
             
             return self::$instance;
@@ -44,7 +45,7 @@ if ( !class_exists( 'Livemesh_Elementor_Addons' ) ) {
         public function __clone()
         {
             // Cloning instances of the class is forbidden
-            _doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'livemesh-el-addons' ), '2.2' );
+            _doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'livemesh-el-addons' ), '2.5.2' );
         }
         
         /**
@@ -54,7 +55,7 @@ if ( !class_exists( 'Livemesh_Elementor_Addons' ) ) {
         public function __wakeup()
         {
             // Unserializing instances of the class is forbidden
-            _doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'livemesh-el-addons' ), '2.2' );
+            _doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'livemesh-el-addons' ), '2.5.2' );
         }
         
         private function setup_debug_constants()
@@ -132,6 +133,41 @@ if ( !class_exists( 'Livemesh_Elementor_Addons' ) ) {
             add_action( 'elementor/init', array( $this, 'add_elementor_category' ) );
         }
         
+        private function template_hooks()
+        {
+            $addons = array(
+                'clients',
+                'carousel',
+                'heading',
+                'odometers',
+                'piecharts',
+                'posts_grid',
+                'posts_carousel',
+                'pricing_table',
+                'services',
+                'stats_bars',
+                'team_members',
+                'testimonials',
+                'testimonials_slider'
+            );
+            foreach ( $addons as $addon ) {
+                add_filter(
+                    'lae_' . $addon . '_output',
+                    function ( $default_output, $settings ) use( $addon ) {
+                    // Replace underscores with dashes for template file names
+                    $template_name = str_replace( '_', '-', $addon );
+                    $output = lae_get_template_part( $template_name, $settings );
+                    if ( $output !== null ) {
+                        return $output;
+                    }
+                    return $default_output;
+                },
+                    10,
+                    2
+                );
+            }
+        }
+        
         public function add_elementor_category()
         {
             \Elementor\Plugin::instance()->elements_manager->add_category( 'livemesh-addons', array(
@@ -164,7 +200,7 @@ if ( !class_exists( 'Livemesh_Elementor_Addons' ) ) {
                 true
             );
             wp_register_script(
-                'waypoints',
+                'lae-waypoints',
                 LAE_PLUGIN_URL . 'assets/js/jquery.waypoints' . $suffix . '.js',
                 array( 'jquery' ),
                 LAE_VERSION,
@@ -192,13 +228,6 @@ if ( !class_exists( 'Livemesh_Elementor_Addons' ) ) {
                 true
             );
             wp_register_script(
-                'slick',
-                LAE_PLUGIN_URL . 'assets/js/slick' . $suffix . '.js',
-                array( 'jquery' ),
-                LAE_VERSION,
-                true
-            );
-            wp_register_script(
                 'jquery-flexslider',
                 LAE_PLUGIN_URL . 'assets/js/jquery.flexslider' . $suffix . '.js',
                 array( 'jquery' ),
@@ -215,7 +244,7 @@ if ( !class_exists( 'Livemesh_Elementor_Addons' ) ) {
             wp_register_script(
                 'lae-widgets-scripts',
                 LAE_PLUGIN_URL . 'assets/js/lae-widgets' . $suffix . '.js',
-                array( 'waypoints' ),
+                array( 'lae-waypoints' ),
                 LAE_VERSION,
                 true
             );

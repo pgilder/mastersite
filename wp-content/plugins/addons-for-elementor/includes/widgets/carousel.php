@@ -41,7 +41,7 @@ class LAE_Carousel_Widget extends Widget_Base {
         return [
             'lae-widgets-scripts',
             'lae-frontend-scripts',
-            'slick'
+            'jquery-slick'
         ];
     }
 
@@ -263,7 +263,7 @@ Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Vestibulum turpis s
                 'label' => __('Columns per row', 'livemesh-el-addons'),
                 'type' => Controls_Manager::NUMBER,
                 'min' => 1,
-                'max' => 5,
+                'max' => 25,
                 'step' => 1,
                 'default' => 3,
             ]
@@ -276,7 +276,7 @@ Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Vestibulum turpis s
                 'label' => __('Columns to scroll', 'livemesh-el-addons'),
                 'type' => Controls_Manager::NUMBER,
                 'min' => 1,
-                'max' => 5,
+                'max' => 25,
                 'step' => 1,
                 'default' => 3,
             ]
@@ -319,7 +319,7 @@ Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Vestibulum turpis s
                 'label' => __('Columns per row', 'livemesh-el-addons'),
                 'type' => Controls_Manager::NUMBER,
                 'min' => 1,
-                'max' => 5,
+                'max' => 20,
                 'step' => 1,
                 'default' => 2,
             ]
@@ -331,7 +331,7 @@ Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Vestibulum turpis s
                 'label' => __('Columns to scroll', 'livemesh-el-addons'),
                 'type' => Controls_Manager::NUMBER,
                 'min' => 1,
-                'max' => 5,
+                'max' => 20,
                 'step' => 1,
                 'default' => 2,
             ]
@@ -382,7 +382,7 @@ Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Vestibulum turpis s
                 'label' => __('Columns per row', 'livemesh-el-addons'),
                 'type' => Controls_Manager::NUMBER,
                 'min' => 1,
-                'max' => 3,
+                'max' => 10,
                 'step' => 1,
                 'default' => 1,
             ]
@@ -394,7 +394,7 @@ Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Vestibulum turpis s
                 'label' => __('Columns to scroll', 'livemesh-el-addons'),
                 'type' => Controls_Manager::NUMBER,
                 'min' => 1,
-                'max' => 3,
+                'max' => 10,
                 'step' => 1,
                 'default' => 1,
             ]
@@ -486,6 +486,8 @@ Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Vestibulum turpis s
 
         $settings = $this->get_settings_for_display();
 
+        $settings = apply_filters('lae_carousel_' . $this->get_id() . '_settings', $settings);
+
         $elements = $settings['elements'];
 
         $carousel_settings = [
@@ -513,29 +515,28 @@ Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Vestibulum turpis s
         ];
 
         $carousel_settings = array_merge($carousel_settings, $responsive_settings);
-        ?>
 
-        <?php if (!empty($elements)) : ?>
+        if (!empty($elements)) :
 
-            <div id="lae-carousel-<?php echo uniqid(); ?>"
-                 class="lae-carousel lae-container"
-                 data-settings='<?php echo wp_json_encode($carousel_settings); ?>'>
+            $output = '<div id="lae-carousel-' . $this->get_id() . '" class="lae-carousel lae-container" data-settings=\'' . wp_json_encode($carousel_settings) . '\'>';
 
-                <?php foreach ($elements as $element) : ?>
+            foreach ($elements as $element) :
 
-                    <div class="lae-carousel-item">
+                $child_output = '<div class="lae-carousel-item">';
 
-                        <?php echo $this->parse_text_editor($element['element_content']); ?>
+                $child_output .= $this->parse_text_editor($element['element_content']);
 
-                    </div><!--.lae-carousel-item -->
+                $child_output .= '</div><!-- .lae-carousel-item -->';
 
-                <?php endforeach; ?>
+                $output .= apply_filters('lae_carousel_item_output', $child_output, $element, $settings);
 
-            </div> <!-- .lae-carousel -->
+            endforeach;
 
-        <?php endif; ?>
+            $output .= '</div><!-- .lae-carousel -->';
 
-        <?php
+            echo apply_filters('lae_carousel_output', $output, $settings);
+
+        endif;
     }
 
     protected function content_template() {

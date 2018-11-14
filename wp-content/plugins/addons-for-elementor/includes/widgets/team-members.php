@@ -44,7 +44,7 @@ class LAE_Team_Widget extends Widget_Base {
     public function get_script_depends() {
         return [
             'lae-frontend-scripts',
-            'waypoints'
+            'lae-waypoints',
         ];
     }
 
@@ -541,131 +541,130 @@ class LAE_Team_Widget extends Widget_Base {
     protected function render() {
 
         $settings = $this->get_settings_for_display();
-        ?>
 
-        <?php $item_style = ''; ?>
+        $settings = apply_filters('lae_team_members_' . $this->get_id() . '_settings', $settings);
 
-        <?php $container_style = 'lae-container'; ?>
+        $item_style = '';
 
-        <?php if ($settings['style'] == 'style1'): ?>
+        $container_style = 'lae-container';
 
-            <?php $item_style = 'lae-grid-item'; ?>
+        if ($settings['style'] == 'style1'):
 
-            <?php $container_style = 'lae-grid-container ' . lae_get_grid_classes($settings); ?>
+            $item_style = 'lae-grid-item';
 
-        <?php endif; ?>
+            $container_style = 'lae-grid-container ' . lae_get_grid_classes($settings);
 
-        <div class="lae-team-members lae-<?php echo $settings['style']; ?> <?php echo $container_style; ?>">
+        endif;
 
-            <?php foreach ($settings['team_members'] as $team_member): ?>
+        $output = '<div class="lae-team-members lae-' . $settings['style'] . ' ' . $container_style . '">';
 
-                <div class="<?php echo $item_style; ?> lae-team-member-wrapper">
+        foreach ($settings['team_members'] as $team_member):
 
-                    <?php list($animate_class, $animation_attr) = lae_get_animation_atts($team_member['widget_animation']); ?>
+            $child_output = '<div class="' . $item_style . ' lae-team-member-wrapper">';
 
-                    <div class="lae-team-member <?php echo $animate_class; ?>" <?php echo $animation_attr; ?>>
+            list($animate_class, $animation_attr) = lae_get_animation_atts($team_member['widget_animation']);
 
-                        <div class="lae-image-wrapper">
+            $child_output .= '<div class="lae-team-member ' . $animate_class . '" ' . $animation_attr . '>';
 
-                            <?php if (!empty($team_member['member_image'])): ?>
+            $child_output .= '<div class="lae-image-wrapper">';
 
-                                <?php $image_html = lae_get_image_html($team_member['member_image'], 'thumbnail_size', $settings); ?>
+            if (!empty($team_member['member_image'])):
 
-                                <?php echo $image_html; ?>
+                $image_html = lae_get_image_html($team_member['member_image'], 'thumbnail_size', $settings);
 
-                            <?php endif; ?>
+                $child_output .= $image_html;
 
-                            <?php if ($settings['style'] == 'style1'): ?>
+            endif;
 
-                                <?php $this->social_profile($team_member) ?>
+            if ($settings['style'] == 'style1'):
 
-                            <?php endif; ?>
+                $child_output .= $this->social_profile($team_member, $settings);
 
-                        </div>
+            endif;
 
-                        <div class="lae-team-member-text">
+            $child_output .= '</div><!-- .lae-image-wrapper -->';
 
-                            <<?php echo $settings['title_tag']; ?> class="lae-title"><?php echo esc_html($team_member['member_name']) ?></<?php echo $settings['title_tag']; ?>>
+            $child_output .= '<div class="lae-team-member-text">';
 
-                            <div class="lae-team-member-position">
+            $child_output .= '<' . $settings['title_tag'] . ' class="lae-title">' . esc_html($team_member['member_name']) . '</' . $settings['title_tag'] . '>';
 
-                                <?php echo do_shortcode($team_member['member_position']) ?>
+            $child_output .= '<div class="lae-team-member-position">';
 
-                            </div>
+            $child_output .= do_shortcode($team_member['member_position']);
 
-                            <div class="lae-team-member-details">
+            $child_output .= '</div>';
 
-                                <?php echo do_shortcode($team_member['member_details']) ?>
+            $child_output .= '<div class="lae-team-member-details">';
 
-                            </div>
+            $child_output .= do_shortcode($team_member['member_details']);
 
-                            <?php if ($settings['style'] == 'style2'): ?>
+            $child_output .= '</div>';
 
-                                <?php $this->social_profile($team_member) ?>
+            if ($settings['style'] == 'style2'):
 
-                            <?php endif; ?>
+                $child_output .= $this->social_profile($team_member, $settings);
 
-                        </div>
+            endif;
 
-                    </div>
+            $child_output .= '</div><!-- .lae-team-member-text -->';
 
-                </div>
+            $child_output .= '</div><!-- .lae-team-member -->';
 
-                <?php
+            $child_output .= '</div><!-- .lae-team-member-wrapper -->';
 
-            endforeach;
+            $output .= apply_filters('lae_team_member_output', $child_output, $team_member, $settings);
 
-            ?>
+        endforeach;
 
-        </div>
+        $output .= '</div><!-- .lae-team-members -->';
 
-        <div class="lae-clear"></div>
+        $output .= '<div class="lae-clear"></div>';
 
-        <?php
+        echo apply_filters('lae_team_members_output', $output, $settings);
+
     }
 
-    private function social_profile($team_member) {
-        ?>
-
-        <div class="lae-social-wrap">
-
-            <div class="lae-social-list">
-
-                <?php
-
-                $email = $team_member['member_email'];
-                $facebook_url = $team_member['facebook_url'];
-                $twitter_url = $team_member['twitter_url'];
-                $linkedin_url = $team_member['linkedin_url'];
-                $dribbble_url = $team_member['dribbble_url'];
-                $pinterest_url = $team_member['pinterest_url'];
-                $googleplus_url = $team_member['google_plus_url'];
-                $instagram_url = $team_member['instagram_url'];
+    private function social_profile($team_member, $settings) {
 
 
-                if ($email)
-                    echo '<div class="lae-social-list-item"><a class="lae-email" href="mailto:' . $email . '" title="' . __("Send an email", 'livemesh-el-addons') . '"><i class="lae-icon-email"></i></a></div>';
-                if ($facebook_url)
-                    echo '<div class="lae-social-list-item"><a class="lae-facebook" href="' . $facebook_url . '" target="_blank" title="' . __("Follow on Facebook", 'livemesh-el-addons') . '"><i class="lae-icon-facebook"></i></a></div>';
-                if ($twitter_url)
-                    echo '<div class="lae-social-list-item"><a class="lae-twitter" href="' . $twitter_url . '" target="_blank" title="' . __("Subscribe to Twitter Feed", 'livemesh-el-addons') . '"><i class="lae-icon-twitter"></i></a></div>';
-                if ($linkedin_url)
-                    echo '<div class="lae-social-list-item"><a class="lae-linkedin" href="' . $linkedin_url . '" target="_blank" title="' . __("View LinkedIn Profile", 'livemesh-el-addons') . '"><i class="lae-icon-linkedin"></i></a></div>';
-                if ($googleplus_url)
-                    echo '<div class="lae-social-list-item"><a class="lae-googleplus" href="' . $googleplus_url . '" target="_blank" title="' . __("Follow on Google Plus", 'livemesh-el-addons') . '"><i class="lae-icon-googleplus"></i></a></div>';
-                if ($instagram_url)
-                    echo '<div class="lae-social-list-item"><a class="lae-instagram" href="' . $instagram_url . '" target="_blank" title="' . __("View Instagram Feed", 'livemesh-el-addons') . '"><i class="lae-icon-instagram"></i></a></div>';
-                if ($pinterest_url)
-                    echo '<div class="lae-social-list-item"><a class="lae-pinterest" href="' . $pinterest_url . '" target="_blank" title="' . __("Subscribe to Pinterest Feed", 'livemesh-el-addons') . '"><i class="lae-icon-pinterest"></i></a></div>';
-                if ($dribbble_url)
-                    echo '<div class="lae-social-list-item"><a class="lae-dribbble" href="' . $dribbble_url . '" target="_blank" title="' . __("View Dribbble Portfolio", 'livemesh-el-addons') . '"><i class="lae-icon-dribbble"></i></a></div>';
+        $output = '<div class="lae-social-wrap">';
 
-                ?>
+        $output .= '<div class="lae-social-list">';
 
-            </div>
 
-        </div>
-        <?php
+        $email = $team_member['member_email'];
+        $facebook_url = $team_member['facebook_url'];
+        $twitter_url = $team_member['twitter_url'];
+        $linkedin_url = $team_member['linkedin_url'];
+        $dribbble_url = $team_member['dribbble_url'];
+        $pinterest_url = $team_member['pinterest_url'];
+        $googleplus_url = $team_member['google_plus_url'];
+        $instagram_url = $team_member['instagram_url'];
+
+
+        if ($email)
+            $output .= '<div class="lae-social-list-item"><a class="lae-email" href="mailto:' . $email . '" title="' . __("Send an email", 'livemesh-el-addons') . '"><i class="lae-icon-email"></i></a></div>';
+        if ($facebook_url)
+            $output .= '<div class="lae-social-list-item"><a class="lae-facebook" href="' . $facebook_url . '" target="_blank" title="' . __("Follow on Facebook", 'livemesh-el-addons') . '"><i class="lae-icon-facebook"></i></a></div>';
+        if ($twitter_url)
+            $output .= '<div class="lae-social-list-item"><a class="lae-twitter" href="' . $twitter_url . '" target="_blank" title="' . __("Subscribe to Twitter Feed", 'livemesh-el-addons') . '"><i class="lae-icon-twitter"></i></a></div>';
+        if ($linkedin_url)
+            $output .= '<div class="lae-social-list-item"><a class="lae-linkedin" href="' . $linkedin_url . '" target="_blank" title="' . __("View LinkedIn Profile", 'livemesh-el-addons') . '"><i class="lae-icon-linkedin"></i></a></div>';
+        if ($googleplus_url)
+            $output .= '<div class="lae-social-list-item"><a class="lae-googleplus" href="' . $googleplus_url . '" target="_blank" title="' . __("Follow on Google Plus", 'livemesh-el-addons') . '"><i class="lae-icon-googleplus"></i></a></div>';
+        if ($instagram_url)
+            $output .= '<div class="lae-social-list-item"><a class="lae-instagram" href="' . $instagram_url . '" target="_blank" title="' . __("View Instagram Feed", 'livemesh-el-addons') . '"><i class="lae-icon-instagram"></i></a></div>';
+        if ($pinterest_url)
+            $output .= '<div class="lae-social-list-item"><a class="lae-pinterest" href="' . $pinterest_url . '" target="_blank" title="' . __("Subscribe to Pinterest Feed", 'livemesh-el-addons') . '"><i class="lae-icon-pinterest"></i></a></div>';
+        if ($dribbble_url)
+            $output .= '<div class="lae-social-list-item"><a class="lae-dribbble" href="' . $dribbble_url . '" target="_blank" title="' . __("View Dribbble Portfolio", 'livemesh-el-addons') . '"><i class="lae-icon-dribbble"></i></a></div>';
+
+        $output .= '</div><!-- .lae-social-list -->';
+
+        $output .= '</div><!-- .lae-social-wrap -->';
+
+        return apply_filters('lae_team_member_social_links', $output, $team_member, $settings);
+
     }
 
     protected function content_template() {

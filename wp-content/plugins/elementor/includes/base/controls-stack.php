@@ -1,6 +1,7 @@
 <?php
 namespace Elementor;
 
+use Elementor\Core\Base\Base_Object;
 use Elementor\Core\DynamicTags\Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.4.0
  * @abstract
  */
-abstract class Controls_Stack {
+abstract class Controls_Stack extends Base_Object {
 
 	/**
 	 * Responsive 'desktop' device name.
@@ -43,18 +44,6 @@ abstract class Controls_Stack {
 	 * @var string
 	 */
 	private $id;
-
-	/**
-	 * Parsed Settings.
-	 *
-	 * Holds the settings, which is the data entered by the user and processed
-	 * by elementor.
-	 *
-	 * @access private
-	 *
-	 * @var null|array
-	 */
-	private $settings;
 
 	private $active_settings;
 
@@ -137,6 +126,16 @@ abstract class Controls_Stack {
 	 */
 	private $injection_point;
 
+
+	/**
+	 * Data sanitized.
+	 *
+	 * @access private
+	 *
+	 * @var bool
+	 */
+	private $settings_sanitized = false;
+
 	/**
 	 * Get element name.
 	 *
@@ -216,6 +215,7 @@ abstract class Controls_Stack {
 	 * will be returned.
 	 *
 	 * @since 1.4.0
+	 * @deprecated 2.3.0 Use `Controls_Stack::get_items()` instead
 	 * @access protected
 	 * @static
 	 *
@@ -275,7 +275,7 @@ abstract class Controls_Stack {
 	 * @return mixed Controls list.
 	 */
 	public function get_controls( $control_id = null ) {
-		return self::_get_items( $this->get_stack()['controls'], $control_id );
+		return self::get_items( $this->get_stack()['controls'], $control_id );
 	}
 
 	/**
@@ -1014,31 +1014,21 @@ abstract class Controls_Stack {
 	 * @return mixed The raw data.
 	 */
 	public function get_data( $item = null ) {
-		return self::_get_items( $this->data, $item );
-	}
+		if ( ! $this->settings_sanitized && ( ! $item || 'settings' === $item ) ) {
+			$this->data['settings'] = $this->sanitize_settings( $this->data['settings'] );
 
-	/**
-	 * Get the settings.
-	 *
-	 * Retrieve all the settings or, when requested, a specific setting.
-	 *
-	 * @since 1.4.0
-	 * @access public
-	 *
-	 * @param string $setting Optional. The requested setting. Default is null.
-	 *
-	 * @return mixed The settings.
-	 */
-	public function get_settings( $setting = null ) {
-		return self::_get_items( $this->settings, $setting );
+			$this->settings_sanitized = true;
+		}
+
+		return self::get_items( $this->data, $item );
 	}
 
 	public function get_parsed_dynamic_settings( $setting = null ) {
 		if ( null === $this->parsed_dynamic_settings ) {
-			$this->parsed_dynamic_settings = $this->parse_dynamic_settings( $this->settings );
+			$this->parsed_dynamic_settings = $this->parse_dynamic_settings( $this->get_settings() );
 		}
 
-		return self::_get_items( $this->parsed_dynamic_settings, $setting );
+		return self::get_items( $this->parsed_dynamic_settings, $setting );
 	}
 
 	/**
@@ -1121,7 +1111,7 @@ abstract class Controls_Stack {
 			$this->parsed_active_settings = $this->get_active_settings( $this->get_parsed_dynamic_settings(), $this->get_controls() );
 		}
 
-		return self::_get_items( $this->parsed_active_settings, $setting_key );
+		return self::get_items( $this->parsed_active_settings, $setting_key );
 	}
 
 	/**
@@ -1733,27 +1723,6 @@ abstract class Controls_Stack {
 	}
 
 	/**
-	 * Set settings.
-	 *
-	 * Change or add new settings to an existing control in the stack.
-	 *
-	 * @since 1.4.0
-	 * @access public
-	 *
-	 * @param string|array $key   Setting name, or an array of key/value.
-	 * @param string|null  $value Optional. Setting value. Optional field if
-	 *                            `$key` is an array. Default is null.
-	 */
-	final public function set_settings( $key, $value = null ) {
-		// strict check if override all settings.
-		if ( is_array( $key ) ) {
-			$this->settings = $key;
-		} else {
-			$this->settings[ $key ] = $value;
-		}
-	}
-
-	/**
 	 * Register controls.
 	 *
 	 * Used to add new controls to any element type. For example, external
@@ -1786,22 +1755,8 @@ abstract class Controls_Stack {
 		];
 	}
 
-	/**
-	 * Get parsed settings.
-	 *
-	 * Retrieve the parsed settings for all the controls that represent them.
-	 * The parser set default values and process the settings.
-	 *
-	 * Classes that extend `Controls_Stack` can add new process to the settings
-	 * parser.
-	 *
-	 * @since 1.4.0
-	 * @access protected
-	 *
-	 * @return array Parsed settings.
-	 */
-	protected function _get_parsed_settings() {
-		$settings = $this->data['settings'];
+	protected function get_init_settings() {
+		$settings = $this->get_data( 'settings' );
 
 		foreach ( $this->get_controls() as $control ) {
 			$control_obj = Plugin::$instance->controls_manager->get_control( $control['type'] );
@@ -1819,11 +1774,33 @@ abstract class Controls_Stack {
 	}
 
 	/**
+	 * Get parsed settings.
+	 *
+	 * Retrieve the parsed settings for all the controls that represent them.
+	 * The parser set default values and process the settings.
+	 *
+	 * Classes that extend `Controls_Stack` can add new process to the settings
+	 * parser.
+	 *
+	 * @since 1.4.0
+	 * @deprecated 2.3.0 Use `Controls_Stack::get_init_settings()` instead
+	 * @access protected
+	 *
+	 * @return array Parsed settings.
+	 */
+	protected function _get_parsed_settings() {
+		_deprecated_function( __METHOD__, '2.3.0', 'Controls_Stack::get_init_settings' );
+
+		return $this->get_init_settings();
+	}
+
+	/**
 	 * Sanitize initial data.
 	 *
 	 * Performs data cleaning and sanitization.
 	 *
 	 * @since 2.0.0
+	 * @deprecated 2.1.5 Use `Controls_Stack::sanitize_settings` instead
 	 * @access protected
 	 *
 	 * @param array $data     Data to sanitize.
@@ -1833,45 +1810,9 @@ abstract class Controls_Stack {
 	 * @return array Sanitized data.
 	 */
 	protected function sanitize_initial_data( $data, array $controls = [] ) {
-		if ( ! $controls ) {
-			$controls = $this->get_controls();
-		}
+		_deprecated_function( __METHOD__, '2.1.5', 'Controls_Stack::sanitize_settings' );
 
-		$settings = $data['settings'];
-
-		foreach ( $controls as $control ) {
-			if ( 'repeater' === $control['type'] ) {
-				if ( empty( $settings[ $control['name'] ] ) ) {
-					continue;
-				}
-
-				foreach ( $settings[ $control['name'] ] as $index => $repeater_row_data ) {
-					$sanitized_row_data = $this->sanitize_initial_data( [
-						'settings' => $repeater_row_data,
-					], $control['fields'] );
-
-					$settings[ $control['name'] ][ $index ] = $sanitized_row_data['settings'];
-				}
-
-				continue;
-			}
-
-			$is_dynamic = isset( $settings[ Manager::DYNAMIC_SETTING_KEY ][ $control['name'] ] );
-
-			if ( ! $is_dynamic ) {
-				continue;
-			}
-
-			$value_to_check = $settings[ Manager::DYNAMIC_SETTING_KEY ][ $control['name'] ];
-
-			$tag_text_data = Plugin::$instance->dynamic_tags->tag_text_to_tag_data( $value_to_check );
-
-			if ( ! Plugin::$instance->dynamic_tags->get_tag_info( $tag_text_data['name'] ) ) {
-				unset( $settings[ Manager::DYNAMIC_SETTING_KEY ][ $control['name'] ] );
-			}
-		}
-
-		$data['settings'] = $settings;
+		$data['settings'] = $this->sanitize_settings( $data['settings'], $controls );
 
 		return $data;
 	}
@@ -1981,10 +1922,58 @@ abstract class Controls_Stack {
 		$this->data = array_merge( $this->get_default_data(), $data );
 
 		$this->id = $data['id'];
+	}
 
-		$this->data = $this->sanitize_initial_data( $this->data );
+	/**
+	 * Sanitize initial data.
+	 *
+	 * Performs settings cleaning and sanitization.
+	 *
+	 * @since 2.1.5
+	 * @access private
+	 *
+	 * @param array $settings Settings to sanitize.
+	 * @param array $controls Optional. An array of controls. Default is an
+	 *                        empty array.
+	 *
+	 * @return array Sanitized settings.
+	 */
+	private function sanitize_settings( array $settings, array $controls = [] ) {
+		if ( ! $controls ) {
+			$controls = $this->get_controls();
+		}
 
-		$this->settings = $this->_get_parsed_settings();
+		foreach ( $controls as $control ) {
+			if ( 'repeater' === $control['type'] ) {
+				if ( empty( $settings[ $control['name'] ] ) ) {
+					continue;
+				}
+
+				foreach ( $settings[ $control['name'] ] as $index => $repeater_row_data ) {
+					$sanitized_row_data = $this->sanitize_settings( $repeater_row_data, $control['fields'] );
+
+					$settings[ $control['name'] ][ $index ] = $sanitized_row_data;
+				}
+
+				continue;
+			}
+
+			$is_dynamic = isset( $settings[ Manager::DYNAMIC_SETTING_KEY ][ $control['name'] ] );
+
+			if ( ! $is_dynamic ) {
+				continue;
+			}
+
+			$value_to_check = $settings[ Manager::DYNAMIC_SETTING_KEY ][ $control['name'] ];
+
+			$tag_text_data = Plugin::$instance->dynamic_tags->tag_text_to_tag_data( $value_to_check );
+
+			if ( ! Plugin::$instance->dynamic_tags->get_tag_info( $tag_text_data['name'] ) ) {
+				unset( $settings[ Manager::DYNAMIC_SETTING_KEY ][ $control['name'] ] );
+			}
+		}
+
+		return $settings;
 	}
 
 	/**

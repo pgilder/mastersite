@@ -39,7 +39,7 @@ $deactivate_element_testimonials_slider = lae_get_option( 'lae_deactivate_elemen
 
                 <ul class="lae-tabs-wrap">
                     <li class="lae-tab selected" data-target="general"><i
-                            class="lae-icon dashicons dashicons-admin-generic"></i><?php 
+                                class="lae-icon dashicons dashicons-admin-generic"></i><?php 
 echo  __( 'General', 'livemesh-el-addons' ) ;
 ?>
                     </li>
@@ -48,18 +48,20 @@ echo  __( 'General', 'livemesh-el-addons' ) ;
 echo  __( 'Elements', 'livemesh-el-addons' ) ;
 ?>
                     </li>
+                    <?php 
+?>
                     <li class="lae-tab" data-target="custom-css"><i
-                            class="lae-icon dashicons dashicons-editor-code"></i><?php 
+                                class="lae-icon dashicons dashicons-editor-code"></i><?php 
 echo  __( 'Custom CSS', 'livemesh-el-addons' ) ;
 ?>
                     </li>
                     <li class="lae-tab" data-target="debugging"><i
-                            class="lae-icon dashicons dashicons-warning"></i><?php 
+                                class="lae-icon dashicons dashicons-warning"></i><?php 
 echo  __( 'Debugging', 'livemesh-el-addons' ) ;
 ?>
                     </li>
                     <li class="lae-tab" data-target="premium-version"><i
-                            class="lae-icon dashicons dashicons-yes"></i><?php 
+                                class="lae-icon dashicons dashicons-yes"></i><?php 
 echo  __( 'Premium Version', 'livemesh-el-addons' ) ;
 ?>
                     </li>
@@ -130,6 +132,8 @@ echo  $theme_hover_color ;
 
                 </div>
 
+                <?php 
+?>
 
 
                 <!-------------------  ELEMENTS TAB -------------------->
@@ -687,17 +691,12 @@ if ( lae_fs()->is_not_paying() ) {
                             <p>We offer premium support for our paid customers with following benefits - </p>
 
                             <ul>
-                                <li><strong>Dedicated Forum</strong> - The customers will be provided access to a
-                                    dedicated support forum.
+                                <li><strong>Dedicated Support Portal</strong> - The customers will be provided access to a
+                                    dedicated support portal powered by Freshdesk.
                                 </li>
-                                <li><strong>Public and Private Tickets</strong> - Private tickets help you work with us
+                                <li><strong>Private Tickets</strong> - Private tickets help you work with us
                                     directly regarding the issues you are facing in your site by sharing the details of
                                     your site securely.
-                                </li>
-                                <li><strong>Searchable Topics</strong> - The support forum is searchable for public
-                                    topics helping you look for resolution of similar issues reported by other
-                                    customers.
-                                </li>
                                 </li>
                                 <li><strong>Faster turnaround</strong> - The threads opened by paid customers will be
                                     attended to within 24 hours of opening a ticket.

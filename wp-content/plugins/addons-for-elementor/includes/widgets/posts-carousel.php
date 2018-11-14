@@ -41,7 +41,7 @@ class LAE_Posts_Carousel_Widget extends Widget_Base {
         return [
             'lae-widgets-scripts',
             'lae-frontend-scripts',
-            'slick',
+            'jquery-slick',
         ];
     }
 
@@ -782,6 +782,8 @@ class LAE_Posts_Carousel_Widget extends Widget_Base {
 
         $settings = $this->get_settings_for_display();
 
+        $settings = apply_filters('lae_posts_carousel_' . $this->get_id() . '_settings', $settings);
+
         $taxonomies = array();
 
         $carousel_settings = [
@@ -813,122 +815,138 @@ class LAE_Posts_Carousel_Widget extends Widget_Base {
         // Use the processed post selector query to find posts.
         $query_args = lae_build_query_args($settings);
 
+        $query_args = apply_filters('lae_posts_carousel_'. $this->get_id() . '_query_args', $query_args, $settings);
+
         $loop = new \WP_Query($query_args);
 
         // Loop through the posts and do something with them.
-        if ($loop->have_posts()) : ?>
+        if ($loop->have_posts()) :
 
-            <div id="lae-posts-carousel-<?php echo uniqid(); ?>"
-                 class="lae-posts-carousel lae-container"
-                 data-settings='<?php echo wp_json_encode($carousel_settings); ?>'>
+            $post_id = get_the_ID();
 
-                <?php $taxonomies[] = $settings['taxonomy_chosen']; ?>
+            $output = '<div id="lae-posts-carousel-' . uniqid()
+                . '" class="lae-posts-carousel lae-container" data-settings=\'' . wp_json_encode($carousel_settings) . '\'>';
 
-                <?php while ($loop->have_posts()) : $loop->the_post(); ?>
+            $taxonomies[] = $settings['taxonomy_chosen'];
 
-                    <div data-id="id-<?php the_ID(); ?>" class="lae-posts-carousel-item">
+            while ($loop->have_posts()) : $loop->the_post();
 
-                        <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+                $entry_output = '<div data-id="id-' . get_the_ID() . '" class="lae-posts-carousel-item">';
 
-                            <?php if ($thumbnail_exists = has_post_thumbnail()): ?>
+                $entry_output .= '<article id="post-' . get_the_ID() . '" class="' . join(' ', get_post_class('', $post_id)) . '">';
 
-                                <div class="lae-project-image">
+                if ($thumbnail_exists = has_post_thumbnail()):
 
-                                    <?php $image_setting = ['id' => get_post_thumbnail_id()]; ?>
+                    $entry_image = '<div class="lae-project-image">';
 
-                                    <?php $thumbnail_html = lae_get_image_html($image_setting, 'thumbnail_size', $settings); ?>
+                    $image_setting = ['id' => get_post_thumbnail_id()];
 
-                                    <?php if ($settings['image_linkable'] == 'yes'): ?>
+                    $thumbnail_html = lae_get_image_html($image_setting, 'thumbnail_size', $settings);
 
-                                        <a href="<?php the_permalink(); ?>"> <?php echo $thumbnail_html; ?> </a>
+                    if ($settings['image_linkable'] == 'yes'):
 
-                                    <?php else: ?>
+                        $thumbnail_html = '<a href="' . get_the_permalink() . '">' . $thumbnail_html . '</a>';
 
-                                        <?php echo $thumbnail_html; ?>
+                    endif;
 
-                                    <?php endif; ?>
+                    $entry_image .= apply_filters('lae_posts_carousel_thumbnail_html', $thumbnail_html, $image_setting, $settings);
 
-                                    <div class="lae-image-info">
+                    $image_info = '<div class="lae-image-info">';
 
-                                        <div class="lae-entry-info">
+                    $image_info .= '<div class="lae-entry-info">';
 
-                                            <?php the_title('<' . $settings['title_tag'] . ' class="lae-post-title"><a href="' . get_permalink() . '" title="' . get_the_title() . '"
-                                               rel="bookmark">', '</a></' . $settings['title_tag'] . '>'); ?>
+                    $image_info .= '<' . $settings['title_tag'] . ' class="lae-post-title"><a href="' . get_permalink() . '" title="' . get_the_title() . '" rel="bookmark">' . get_the_title() . '</a></' . $settings['title_tag'] . '>';
 
-                                            <?php echo lae_get_info_for_taxonomies($taxonomies); ?>
+                    $image_info .= lae_get_info_for_taxonomies($taxonomies);
 
-                                        </div>
+                    $image_info .= '</div>';
 
-                                    </div>
+                    $image_info .= '</div><!-- .lae-image-info -->';
 
-                                </div>
+                    $entry_image .= apply_filters('lae_posts_carousel_image_info', $image_info, $post_id, $settings);
 
-                            <?php endif; ?>
+                    $entry_image .= '</div>';
 
-                            <?php if (($settings['display_title'] == 'yes') || ($settings['display_summary'] == 'yes')) : ?>
+                    $entry_output .= apply_filters('lae_posts_carousel_entry_image', $entry_image, $post_id, $image_setting, $settings);
 
-                                <div class="lae-entry-text-wrap <?php echo($thumbnail_exists ? '' : ' nothumbnail'); ?>">
+                endif;
 
-                                    <?php if ($settings['display_title'] == 'yes') : ?>
+                if (($settings['display_title'] == 'yes') || ($settings['display_summary'] == 'yes')) :
 
-                                        <?php the_title('<' . $settings['entry_title_tag'] . ' class="entry-title"><a href="' . get_permalink() . '" title="' . get_the_title() . '"
-                                               rel="bookmark">', '</a></' . $settings['entry_title_tag'] . '>'); ?>
+                    $entry_output .= '<div class="lae-entry-text-wrap ' . ($thumbnail_exists ? '' : ' nothumbnail') . '">';
 
-                                    <?php endif; ?>
+                    if ($settings['display_title'] == 'yes') :
 
-                                    <?php if (($settings['display_post_date'] == 'yes') || ($settings['display_author'] == 'yes') || ($settings['display_taxonomy'] == 'yes')) : ?>
+                        $entry_title = '<' . $settings['entry_title_tag']
+                            . ' class="entry-title"><a href="' . get_permalink()
+                            . '" title="' . get_the_title()
+                            . '" rel="bookmark">' . get_the_title()
+                            . '</a></' . $settings['entry_title_tag'] . '>';
 
-                                        <div class="lae-entry-meta">
+                        $entry_output .= apply_filters('lae_posts_carousel_entry_title', $entry_title, $post_id, $settings);
 
-                                            <?php if ($settings['display_author'] == 'yes'): ?>
+                    endif;
 
-                                                <?php echo lae_entry_author(); ?>
+                    if (($settings['display_post_date'] == 'yes') || ($settings['display_author'] == 'yes') || ($settings['display_taxonomy'] == 'yes')) :
 
-                                            <?php endif; ?>
+                        $entry_meta = '<div class="lae-entry-meta">';
 
-                                            <?php if ($settings['display_post_date'] == 'yes'): ?>
+                        if ($settings['display_author'] == 'yes'):
 
-                                                <?php echo lae_entry_published(); ?>
+                            $entry_meta .= lae_entry_author();
 
-                                            <?php endif; ?>
+                        endif;
 
-                                            <?php if ($settings['display_taxonomy'] == 'yes'): ?>
+                        if ($settings['display_post_date'] == 'yes'):
 
-                                                <?php echo lae_get_info_for_taxonomies($taxonomies); ?>
+                            $entry_meta .= lae_entry_published();
 
-                                            <?php endif; ?>
+                        endif;
 
-                                        </div>
+                        if ($settings['display_taxonomy'] == 'yes'):
 
-                                    <?php endif; ?>
+                            $entry_meta .= lae_get_info_for_taxonomies($taxonomies);
 
-                                    <?php if ($settings['display_summary'] == 'yes') : ?>
+                        endif;
 
-                                        <div class="entry-summary">
+                        $entry_meta .= '</div>';
 
-                                            <?php the_excerpt(); ?>
+                        $entry_output .= apply_filters('lae_posts_carousel_entry_meta', $entry_meta, $post_id, $settings);
 
-                                        </div>
+                    endif;
 
-                                    <?php endif; ?>
+                    if ($settings['display_summary'] == 'yes') :
 
-                                </div>
+                        $excerpt = '<div class="entry-summary">';
 
-                            <?php endif; ?>
+                        $excerpt .= get_the_excerpt();
 
-                        </article><!-- .hentry -->
+                        $excerpt .= '</div>';
 
-                    </div><!--.lae-posts-carousel-item -->
+                        $entry_output .= apply_filters('lae_posts_carousel_entry_excerpt', $excerpt, $post_id, $settings);
 
-                <?php endwhile; ?>
+                    endif;
 
-                <?php wp_reset_postdata(); ?>
+                    $entry_output .= '</div>';
 
-            </div> <!-- .lae-posts-carousel -->
+                endif;
 
-        <?php endif; ?>
+                $entry_output .= '</article><!-- .hentry -->';
 
-        <?php
+                $entry_output .= '</div><!-- .lae-posts-carousel-item -->';
+
+                $output .= apply_filters('lae_posts_carousel_entry_output', $entry_output, $post_id, $settings);
+
+            endwhile;
+
+            wp_reset_postdata();
+
+            $output .= '</div><!-- .lae-posts-carousel -->';
+
+            echo apply_filters('lae_posts_carousel_output', $output, $settings);
+
+        endif;
+
     }
 
     protected function content_template() {

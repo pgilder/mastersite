@@ -42,7 +42,7 @@ class LAE_Piecharts_Widget extends Widget_Base {
         return [
             'lae-widgets-scripts',
             'lae-frontend-scripts',
-            'waypoints',
+            'lae-waypoints',
             'jquery-stats'
         ];
     }
@@ -250,43 +250,38 @@ class LAE_Piecharts_Widget extends Widget_Base {
     protected function render() {
 
         $settings = $this->get_settings_for_display();
-        ?>
 
-        <?php
+        $settings = apply_filters('lae_piecharts_' . $this->get_id() . '_settings', $settings);
 
         $bar_color = ' data-bar-color="' . esc_attr($settings['bar_color']) . '"';
         $track_color = ' data-track-color="' . esc_attr($settings['track_color']) . '"';
 
-        ?>
+        $output = '<div class="lae-piecharts lae-grid-container ' . lae_get_grid_classes($settings) . '">';
 
-        <div class="lae-piecharts lae-grid-container <?php echo lae_get_grid_classes($settings); ?> ">
+        foreach ($settings['piecharts'] as $piechart):
 
-            <?php foreach ($settings['piecharts'] as $piechart): ?>
+            $child_output = '<div class="lae-grid-item lae-piechart">';
 
-                <div class="lae-grid-item lae-piechart">
+            $child_output .= '<div class="lae-percentage"' . $bar_color . $track_color . ' data-percent="' . round($piechart['percentage_value']) . '">';
 
-                    <div class="lae-percentage" <?php echo $bar_color; ?> <?php echo $track_color; ?>
-                         data-percent="<?php echo round($piechart['percentage_value']); ?>">
+            $child_output .= '<span>' . round($piechart['percentage_value']) . '<sup>%</sup>' . '</span>';
 
-                        <span><?php echo round($piechart['percentage_value']); ?><sup>%</sup></span>
+            $child_output .= '</div>';
 
-                    </div>
+            $child_output .= '<div class="lae-label">' . esc_html($piechart['stats_title']) . '</div>';
 
-                    <div class="lae-label"><?php echo esc_html($piechart['stats_title']); ?></div>
+            $child_output .= '</div><!-- .lae-piechart -->';
 
-                </div>
+            $output .= apply_filters('lae_piechart_output', $child_output, $piechart, $settings);
 
-                <?php
+        endforeach;
 
-            endforeach;
+        $output .= '</div><!-- .lae-piecharts -->';
 
-            ?>
+        $output .= '<div class="lae-clear"></div>';
 
-        </div>
+        echo apply_filters('lae_piecharts_output', $output, $settings);
 
-        <div class="lae-clear"></div>
-
-        <?php
     }
 
     protected function content_template() {

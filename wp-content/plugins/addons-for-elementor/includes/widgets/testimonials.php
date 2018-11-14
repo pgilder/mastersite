@@ -41,7 +41,7 @@ class LAE_Testimonials_Widget extends Widget_Base {
     public function get_script_depends() {
         return [
             'lae-frontend-scripts',
-            'waypoints'
+            'lae-waypoints'
         ];
     }
 
@@ -362,59 +362,59 @@ class LAE_Testimonials_Widget extends Widget_Base {
     protected function render() {
 
         $settings = $this->get_settings_for_display();
-        ?>
 
-        <div class="lae-testimonials lae-grid-container <?php echo lae_get_grid_classes($settings); ?>">
+        $settings = apply_filters('lae_testimonials_' . $this->get_id() . '_settings', $settings);
 
-            <?php foreach ($settings['testimonials'] as $testimonial) : ?>
+        $output = '<div class="lae-testimonials lae-grid-container ' . lae_get_grid_classes($settings) . '">';
 
-                <?php list($animate_class, $animation_attr) = lae_get_animation_atts($testimonial['widget_animation']); ?>
+        foreach ($settings['testimonials'] as $testimonial) :
 
-                <div class="lae-grid-item lae-testimonial <?php echo $animate_class; ?>" <?php echo $animation_attr; ?>>
+            list($animate_class, $animation_attr) = lae_get_animation_atts($testimonial['widget_animation']);
 
-                    <div class="lae-testimonial-text">
-                        
-                        <?php echo $this->parse_text_editor($testimonial['testimonial_text']) ?>
-                        
-                    </div>
+            $child_output = '<div class="lae-grid-item lae-testimonial ' . $animate_class . '" ' . $animation_attr . '>';
 
-                    <div class="lae-testimonial-user">
+            $child_output .= '<div class="lae-testimonial-text">';
 
-                        <div class="lae-image-wrapper">
+            $child_output .= $this->parse_text_editor($testimonial['testimonial_text']);
 
-                            <?php $client_image = $testimonial['client_image']; ?>
+            $child_output .= '</div>';
 
-                            <?php if (!empty($client_image)): ?>
+            $child_output .= '<div class="lae-testimonial-user">';
 
-                                <?php echo wp_get_attachment_image($client_image['id'], 'thumbnail', false, array('class' => 'lae-image full')); ?>
+            $child_output .= '<div class="lae-image-wrapper">';
 
-                            <?php endif; ?>
-                            
-                        </div>
+            $client_image = $testimonial['client_image'];
 
-                        <div class="lae-text">
-                            
-                            <<?php echo $settings['title_tag']; ?> class="lae-author-name"><?php echo esc_html($testimonial['client_name']) ?></<?php echo $settings['title_tag']; ?>>
-                            
-                            <div class="lae-author-credentials"><?php echo wp_kses_post($testimonial['credentials']); ?></div>
-                            
-                        </div>
+            if (!empty($client_image)):
 
-                    </div>
+                $child_output .= wp_get_attachment_image($client_image['id'], 'thumbnail', false, array('class' => 'lae-image full'));
 
-                </div>
+            endif;
 
-                <?php
+            $child_output .= '</div>';
 
-            endforeach;
+            $child_output .= '<div class="lae-text">';
 
-            ?>
+            $child_output .= '<' . $settings['title_tag'] . ' class="lae-author-name">' . esc_html($testimonial['client_name']) . '</' . $settings['title_tag'] . '>';
 
-        </div>
+            $child_output .= '<div class="lae-author-credentials">' . wp_kses_post($testimonial['credentials']) . '</div>';
 
-        <div class="lae-clear"></div>
+            $child_output .= '</div><!-- .lae-text -->';
 
-        <?php
+            $child_output .= '</div><!-- .lae-testimonial-user -->';
+
+            $child_output .= '</div><!-- .lae-testimonial -->';
+
+            $output .= apply_filters('lae_testimonial_output', $child_output, $testimonial, $settings);
+
+        endforeach;
+
+        $output .= '</div><!-- .lae-testimonials -->';
+
+        $output .= '<div class="lae-clear"></div>';
+
+        echo apply_filters('lae_testimonials_output', $output, $settings);
+
     }
 
     protected function content_template() {

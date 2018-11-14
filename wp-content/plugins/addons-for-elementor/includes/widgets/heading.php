@@ -40,7 +40,7 @@ class LAE_Heading_Widget extends Widget_Base {
     public function get_script_depends() {
         return [
             'lae-frontend-scripts',
-            'waypoints'
+            'lae-waypoints'
         ];
     }
 
@@ -276,29 +276,30 @@ class LAE_Heading_Widget extends Widget_Base {
 
         $settings = $this->get_settings_for_display();
 
-        ?>
+        $settings = apply_filters('lae_heading_' . $this->get_id() . '_settings', $settings);
 
-        <?php list($animate_class, $animation_attr) = lae_get_animation_atts($settings['widget_animation']); ?>
+        list($animate_class, $animation_attr) = lae_get_animation_atts($settings['widget_animation']);
 
-        <div class="lae-heading lae-<?php echo $settings['style']; ?> lae-align<?php echo $settings['align']; ?><?php echo $animate_class; ?>" <?php echo $animation_attr; ?>>
+        $output = '<div class="lae-heading lae-' . $settings['style'] . ' lae-align' . $settings['align'] . ' ' . $animate_class . '" ' . $animation_attr . '>';
 
-            <?php if ($settings['style'] == 'style2' && !empty($settings['subtitle'])): ?>
+        if ($settings['style'] == 'style2' && !empty($settings['subtitle'])):
 
-                <div class="lae-subtitle"><?php echo esc_html($settings['subtitle']); ?></div>
+            $output .= '<div class="lae-subtitle">' . esc_html($settings['subtitle']) . '</div>';
 
-            <?php endif; ?>
+        endif;
 
-            <<?php echo esc_html($settings['title_tag']); ?> class="lae-title"><?php echo wp_kses_post($settings['heading']); ?></<?php echo esc_html($settings['title_tag']); ?>>
+        $output .= '<' . esc_html($settings['title_tag']) . ' class="lae-title">' . wp_kses_post($settings['heading']) . '</' . esc_html($settings['title_tag']) . '>';
 
-            <?php if ($settings['style'] != 'style3' && !empty($settings['short_text'])): ?>
+        if ($settings['style'] != 'style3' && !empty($settings['short_text'])):
 
-                <p class="lae-text"><?php echo wp_kses_post($settings['short_text']); ?></p>
+            $output .= '<p class="lae-text">' . wp_kses_post($settings['short_text']) . '</p>';
 
-            <?php endif; ?>
+        endif;
 
-        </div>
+        $output .= '</div><!-- .lae-heading -->';
 
-        <?php
+        echo apply_filters('lae_heading_output', $output, $settings);
+
     }
 
     protected function content_template() {

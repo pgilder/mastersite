@@ -1,7 +1,6 @@
 <?php
 namespace Elementor;
 
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -869,11 +868,11 @@ class Controls_Manager {
 	 * @since 1.0.0
 	 * @access public
 	 *
-	 * @param Element_Base $element The element.
+	 * @param Controls_Stack $controls_stack.
 	 * @param string $tab The panel tab.
 	 */
-	public function add_custom_css_controls( $element, $tab = self::TAB_ADVANCED ) {
-		$element->start_controls_section(
+	public function add_custom_css_controls( Controls_Stack $controls_stack, $tab = self::TAB_ADVANCED ) {
+		$controls_stack->start_controls_section(
 			'section_custom_css_pro',
 			[
 				'label' => __( 'Custom CSS', 'elementor' ),
@@ -881,28 +880,28 @@ class Controls_Manager {
 			]
 		);
 
-		$element->add_control(
+		$controls_stack->add_control(
 			'custom_css_pro',
 			[
 				'type' => self::RAW_HTML,
-				'raw' => '<div class="elementor-panel-nerd-box">' .
-						'<i class="elementor-panel-nerd-box-icon eicon-hypster" aria-hidden="true"></i>
-						<div class="elementor-panel-nerd-box-title">' .
+				'raw' => '<div class="elementor-nerd-box">' .
+						'<i class="elementor-nerd-box-icon eicon-hypster" aria-hidden="true"></i>
+						<div class="elementor-nerd-box-title">' .
 							__( 'Meet Our Custom CSS', 'elementor' ) .
 						'</div>
-						<div class="elementor-panel-nerd-box-message">' .
+						<div class="elementor-nerd-box-message">' .
 							__( 'Custom CSS lets you add CSS code to any widget, and see it render live right in the editor.', 'elementor' ) .
 						'</div>
-						<div class="elementor-panel-nerd-box-message">' .
+						<div class="elementor-nerd-box-message">' .
 							__( 'This feature is only available on Elementor Pro.', 'elementor' ) .
 						'</div>
-						<a class="elementor-panel-nerd-box-link elementor-button elementor-button-default elementor-go-pro" href="' . Utils::get_pro_link( 'https://elementor.com/pro/?utm_source=panel-custom-css&utm_campaign=gopro&utm_medium=wp-dash' ) . '" target="_blank">' .
+						<a class="elementor-nerd-box-link elementor-button elementor-button-default elementor-go-pro" href="' . Utils::get_pro_link( 'https://elementor.com/pro/?utm_source=panel-custom-css&utm_campaign=gopro&utm_medium=wp-dash' ) . '" target="_blank">' .
 							__( 'Go Pro', 'elementor' ) .
 						'</a>
 						</div>',
 			]
 		);
 
-		$element->end_controls_section();
+		$controls_stack->end_controls_section();
 	}
 }

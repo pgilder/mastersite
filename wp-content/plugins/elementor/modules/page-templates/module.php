@@ -82,6 +82,8 @@ class Module extends BaseModule {
 				$template_path = $this->get_template_path( $document->get_meta( '_wp_page_template' ) );
 				if ( $template_path ) {
 					$template = $template_path;
+
+					Plugin::$instance->inspector->add_log( 'Page Template', Plugin::$instance->inspector->parse_template_path( $template ), $document->get_edit_url() );
 				}
 			}
 		}
@@ -339,7 +341,10 @@ class Module extends BaseModule {
 	 */
 	public function filter_update_meta( $check, $object_id, $meta_key ) {
 		if ( '_wp_page_template' === $meta_key ) {
-			$ajax_data = Plugin::$instance->ajax->get_current_action_data();
+			/** @var \Elementor\Core\Common\Modules\Ajax\Module $ajax */
+			$ajax = Plugin::$instance->common->get_component( 'ajax' );
+
+			$ajax_data = $ajax->get_current_action_data();
 
 			$is_autosave_action = $ajax_data && 'save_builder' === $ajax_data['action'] && DB::STATUS_AUTOSAVE === $ajax_data['data']['status'];
 

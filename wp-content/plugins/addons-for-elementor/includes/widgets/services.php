@@ -43,7 +43,7 @@ class LAE_Services_Widget extends Widget_Base
     
     public function get_script_depends()
     {
-        return [ 'lae-frontend-scripts', 'waypoints' ];
+        return [ 'lae-frontend-scripts', 'lae-waypoints' ];
     }
     
     protected function _register_controls()
@@ -256,103 +256,44 @@ class LAE_Services_Widget extends Widget_Base
     protected function render()
     {
         $settings = $this->get_settings_for_display();
-        ?>
-
-        <div class="lae-services lae-<?php 
-        echo  $settings['style'] ;
-        ?> lae-grid-container <?php 
-        echo  lae_get_grid_classes( $settings ) ;
-        ?>">
-
-            <?php 
+        $settings = apply_filters( 'lae_services_' . $this->get_id() . '_settings', $settings );
+        $output = '<div class="lae-services lae-' . $settings['style'] . ' lae-grid-container ' . lae_get_grid_classes( $settings ) . '">';
         foreach ( $settings['services'] as $service ) {
-            ?>
-
-                <?php 
             list( $animate_class, $animation_attr ) = lae_get_animation_atts( $service['widget_animation'] );
-            ?>
-
-                <div class="lae-grid-item lae-service-wrapper">
-
-                    <div class="lae-service <?php 
-            echo  $animate_class ;
-            ?>" <?php 
-            echo  $animation_attr ;
-            ?>>
-
-                        <?php 
+            $child_output = '<div class="lae-grid-item lae-service-wrapper">';
+            $child_output .= '<div class="lae-service ' . $animate_class . '" ' . $animation_attr . '>';
             
             if ( $service['icon_type'] == 'icon_image' ) {
-                ?>
-
-                            <?php 
                 
                 if ( !empty($service['icon_image']) ) {
-                    ?>
-
-                                <div class="lae-image-wrapper">
-
-                                    <?php 
+                    $child_output .= '<div class="lae-image-wrapper">';
                     $image_html = lae_get_image_html( $service['icon_image'], 'thumbnail_size', $settings );
-                    ?>
-
-                                    <?php 
-                    echo  $image_html ;
-                    ?>
-
-                                </div>
-
-                            <?php 
+                    $child_output .= $image_html;
+                    $child_output .= '</div>';
                 }
-                
-                ?>
-
-                        <?php 
+            
             } elseif ( $service['icon_type'] == 'icon' ) {
-                ?>
-
-                            <div class="lae-icon-wrapper">
-
-                                <span class="<?php 
-                echo  esc_attr( $service['icon'] ) ;
-                ?>"></span>
-
-                            </div>
-
-                        <?php 
+                $child_output .= '<div class="lae-icon-wrapper">';
+                $child_output .= '<span class="' . esc_attr( $service['icon'] ) . '"></span>';
+                $child_output .= '</div>';
             }
             
-            ?>
-
-                        <div class="lae-service-text">
-
-                            <<?php 
-            echo  $settings['title_tag'] ;
-            ?> class="lae-title"><?php 
-            echo  esc_html( $service['service_title'] ) ;
-            ?></<?php 
-            echo  $settings['title_tag'] ;
-            ?>>
-
-                            <div class="lae-service-details"><?php 
-            echo  do_shortcode( wp_kses_post( $service['service_excerpt'] ) ) ;
-            ?></div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <?php 
+            $child_output .= '<div class="lae-service-text">';
+            $child_output .= '<' . $settings['title_tag'] . ' class="lae-title">' . esc_html( $service['service_title'] ) . '</' . $settings['title_tag'] . '>';
+            $child_output .= '<div class="lae-service-details">' . do_shortcode( wp_kses_post( $service['service_excerpt'] ) ) . '</div>';
+            $child_output .= '</div><!-- .lae-service-text -->';
+            $child_output .= '</div><!-- .lae-service -->';
+            $child_output .= '</div><!-- .lae-service-wrapper -->';
+            $output .= apply_filters(
+                'lae_service_item_output',
+                $child_output,
+                $service,
+                $settings
+            );
         }
-        ?>
-
-        </div>
-
-        <div class="lae-clear"></div>
-
-        <?php 
+        $output .= '</div><!-- .lae-services -->';
+        $output .= '<div class="lae-clear"></div>';
+        echo  apply_filters( 'lae_services_output', $output, $settings ) ;
     }
     
     protected function content_template()

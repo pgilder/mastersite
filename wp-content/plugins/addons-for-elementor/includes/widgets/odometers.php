@@ -43,7 +43,7 @@ class LAE_Odometers_Widget extends Widget_Base {
         return [
             'lae-widgets-scripts',
             'lae-frontend-scripts',
-            'waypoints',
+            'lae-waypoints',
             'jquery-stats'
         ];
     }
@@ -360,69 +360,64 @@ class LAE_Odometers_Widget extends Widget_Base {
     protected function render() {
 
         $settings = $this->get_settings_for_display();
-        ?>
 
-        <div class="lae-odometers lae-grid-container <?php echo lae_get_grid_classes($settings); ?>">
+        $settings = apply_filters('lae_odometers_' . $this->get_id() . '_settings', $settings);
 
-            <?php foreach ($settings['odometers'] as $odometer): ?>
+        $output = '<div class="lae-odometers lae-grid-container ' . lae_get_grid_classes($settings) . '">';
 
-                <?php
+        foreach ($settings['odometers'] as $odometer):
 
-                $prefix = (!empty ($odometer['prefix'])) ? '<span class="prefix">' . $odometer['prefix'] . '</span>' : '';
-                $suffix = (!empty ($odometer['suffix'])) ? '<span class="suffix">' . $odometer['suffix'] . '</span>' : '';
+            $prefix = (!empty ($odometer['prefix'])) ? '<span class="prefix">' . $odometer['prefix'] . '</span>' : '';
+            $suffix = (!empty ($odometer['suffix'])) ? '<span class="suffix">' . $odometer['suffix'] . '</span>' : '';
 
-                ?>
+            $child_output = '<div class="lae-grid-item lae-odometer">';
 
-                <div class="lae-grid-item lae-odometer">
+            $child_output .= (!empty ($odometer['prefix'])) ? '<span class="lae-prefix">' . $odometer['prefix'] . '</span>' : '';
 
-                    <?php echo (!empty ($odometer['prefix'])) ? '<span class="lae-prefix">' . $odometer['prefix'] . '</span>' : ''; ?>
+            $child_output .= '<div class="lae-number odometer" data-stop="' . intval($odometer['stop_value']) . '">';
 
-                    <div class="lae-number odometer" data-stop="<?php echo intval($odometer['stop_value']); ?>">
+            $child_output .= intval($odometer['start_value']);
 
-                        <?php echo intval($odometer['start_value']); ?>
+            $child_output .= '</div><!-- .lae-number -->';
 
-                    </div>
+            $child_output .= (!empty ($odometer['suffix'])) ? '<span class="lae-suffix">' . $odometer['suffix'] . '</span>' : '';
 
-                    <?php echo (!empty ($odometer['suffix'])) ? '<span class="lae-suffix">' . $odometer['suffix'] . '</span>' : ''; ?>
+            $icon_type = esc_html($odometer['icon_type']);
 
-                    <?php $icon_type = esc_html($odometer['icon_type']); ?>
+            if ($icon_type == 'icon_image') :
 
-                    <?php if ($icon_type == 'icon_image') : ?>
+                $icon_image = $odometer['icon_image'];
 
-                        <?php $icon_image = $odometer['icon_image']; ?>
+                if (!empty($icon_image)):
 
-                        <?php if (!empty($icon_image)): ?>
+                    $icon_html = '<span class="lae-image-wrapper">' . wp_get_attachment_image($icon_image['id'], 'full', false, array('class' => 'lae-image full')) . '</span>';
 
-                            <?php $icon_html = '<span class="lae-image-wrapper">' . wp_get_attachment_image($icon_image['id'], 'full', false, array('class' => 'lae-image full')) . '</span>'; ?>
+                endif;
 
-                        <?php endif; ?>
+            else :
 
+                $icon_html = '<span class="lae-icon-wrapper"><i class="' . esc_attr($odometer['icon']) . '"></i></span>';
 
-                    <?php else : ?>
+            endif;
 
-                        <?php $icon_html = '<span class="lae-icon-wrapper"><i class="' . esc_attr($odometer['icon']) . '"></i></span>'; ?>
+            $child_output .= '<div class="lae-stats-title-wrap">';
 
-                    <?php endif; ?>
+            $child_output .= '<div class="lae-stats-title">' . $icon_html . esc_html($odometer['stats_title']) . '</div>';
 
-                    <div class="lae-stats-title-wrap">
+            $child_output .= '</div>';
 
-                        <div class="lae-stats-title"><?php echo $icon_html . esc_html($odometer['stats_title']); ?></div>
+            $child_output .= '</div><!-- .lae-odometer -->';
 
-                    </div>
+            $output .= apply_filters('lae_odometer_output', $child_output, $odometer, $settings);
 
-                </div>
+        endforeach;
 
-                <?php
+        $output .= '</div><!-- .lae-odometers -->';
 
-            endforeach;
+        $output .= '<div class="lae-clear"></div>';
 
-            ?>
+        echo apply_filters('lae_odometers_output', $output, $settings);
 
-        </div>
-
-        <div class="lae-clear"></div>
-
-        <?php
     }
 
     protected function content_template() {

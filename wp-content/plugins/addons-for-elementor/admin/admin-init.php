@@ -20,7 +20,17 @@ class LAE_Admin {
     public function includes() {
 
         // load class admin ajax function
-        require_once(LAE_PLUGIN_DIR . '/admin/admin-ajax.php');
+        require_once LAE_PLUGIN_DIR . 'admin/admin-ajax.php';
+
+        /**
+         * Classes responsible for displaying admin notices.
+         */
+        if (lae_fs()->is_not_paying()) {
+
+            require_once LAE_PLUGIN_DIR . 'admin/notices/admin-notice.php';
+
+            require_once LAE_PLUGIN_DIR . 'admin/notices/admin-notice-rate.php';
+        }
 
     }
 
@@ -33,6 +43,18 @@ class LAE_Admin {
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
 
         add_action('current_screen', array($this, 'remove_admin_notices'));
+
+
+        /**
+         * Notice: Rate plugin
+         */
+        if (lae_fs()->is_not_paying()) {
+            $rate = new LAE_Notice_Rate('rate', LAE_PLUGIN_DIR . 'admin/notices/templates/rate.php');
+
+            add_action('load-plugins.php', array($rate, 'defer_first_time'));
+            add_action('admin_notices', array($rate, 'display_notice'));
+            add_action('admin_post_lae_dismiss_notice', array($rate, 'dismiss_notice'));
+        }
 
     }
 

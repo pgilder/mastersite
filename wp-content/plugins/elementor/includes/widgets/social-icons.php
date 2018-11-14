@@ -102,21 +102,25 @@ class Widget_Social_Icons extends Widget_Base {
 					'fa fa-bitbucket',
 					'fa fa-codepen',
 					'fa fa-delicious',
+					'fa fa-deviantart',
 					'fa fa-digg',
 					'fa fa-dribbble',
 					'fa fa-envelope',
 					'fa fa-facebook',
 					'fa fa-flickr',
 					'fa fa-foursquare',
+					'fa fa-free-code-camp',
 					'fa fa-github',
+					'fa fa-gitlab',
 					'fa fa-google-plus',
 					'fa fa-houzz',
 					'fa fa-instagram',
 					'fa fa-jsfiddle',
 					'fa fa-linkedin',
 					'fa fa-medium',
-					'fa fa-odnoklassniki',
 					'fa fa-meetup',
+					'fa fa-mixcloud',
+					'fa fa-odnoklassniki',
 					'fa fa-pinterest',
 					'fa fa-product-hunt',
 					'fa fa-reddit',
@@ -266,7 +270,7 @@ class Widget_Social_Icons extends Widget_Base {
 					'icon_color' => 'custom',
 				],
 				'selectors' => [
-					'{{WRAPPER}} .elementor-social-icon' => 'background-color: {{VALUE}};',
+					'{{WRAPPER}} .elementor-social-icon:not(:hover)' => 'background-color: {{VALUE}};',
 				],
 			]
 		);
@@ -280,7 +284,7 @@ class Widget_Social_Icons extends Widget_Base {
 					'icon_color' => 'custom',
 				],
 				'selectors' => [
-					'{{WRAPPER}} .elementor-social-icon i' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .elementor-social-icon:not(:hover) i' => 'color: {{VALUE}};',
 				],
 			]
 		);

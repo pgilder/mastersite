@@ -1,0 +1,225 @@
+{
+  "blocks": {
+    "block": [
+      {
+        "name": "SQ_Controllers_Menu",
+        "description": "Loading the Menu in Admin and Frontend",
+        "actions": { "action": "sq_getfrontmenu" },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Controllers_Post",
+        "description": "Post Page",
+        "actions": {
+          "action": [
+            "sq_save_ogimage",
+            "sq_get_keyword"
+          ]
+        },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Controllers_PostsList",
+        "description": "Posts List Page",
+        "actions": {
+          "action": [
+            "sq_posts_rank",
+            "sq_post_rank",
+            "sq_recheck",
+            "inline-save"
+          ]
+        },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_BlockSettingsSeo",
+        "description": "SEO Setting page",
+        "actions": {
+          "action": [
+            "sq_settingsseo_update",
+            "sq_settingsseo_option",
+            "sq_get_snippet",
+            "sq_checkissues",
+            "sq_setstickysla",
+            "sq_active_help",
+            "sq_fixautoseo",
+            "sq_fixpermalink",
+            "sq_fixprivate",
+            "sq_fixcomments",
+            "sq_fix_ogduplicate",
+            "sq_fix_tcduplicate",
+            "sq_fix_titleduplicate",
+            "sq_fix_descduplicate",
+            "sq_backup",
+            "sq_backup_sql",
+            "sq_restore",
+            "sq_restore_sql",
+            "sq_dataupgrade",
+            "sq_resetsettings",
+            "sq_warnings_off",
+            "sq_google_alert_trial",
+            "sq_copyright_agreement"
+          ]
+        },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Controllers_FrontMenu",
+        "description": "Front Menu page",
+        "actions": { "action": "sq_saveseo" },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_BlockPatterns",
+        "description": "Setting page",
+        "actions": {
+          "action": [
+            "sq_savepatters",
+            "sq_savepatters_option"
+          ]
+        },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_BlockSettings",
+        "description": "Setting page",
+        "actions": { "action": "sq_settings_update" },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_BlockSupport",
+        "description": "The support",
+        "controllers": { "controller": "SQ_Controllers_Post" },
+        "actions": {
+          "action": [
+            "sq_feedback",
+            "sq_support"
+          ]
+        },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_Blocklogin",
+        "description": "Connect to Squirrly",
+        "controllers": { "controller": "SQ_Controllers_Post" },
+        "actions": {
+          "action": [
+            "sq_login",
+            "sq_register",
+            "sq_reset"
+          ]
+        },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_Blocksearch",
+        "description": "Inspiration box",
+        "controllers": { "controller": "SQ_Controllers_Post" },
+        "actions": {
+          "action": [
+            "sq_search_blog",
+            "sq_type_click"
+          ]
+        },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_Blockseo",
+        "description": "SEO Live assistant",
+        "controllers": { "controller": "SQ_Controllers_Post" },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_Blockresearch",
+        "description": "Research block",
+        "controllers": { "controller": "SQ_Controllers_Post" },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_BlockAffiliate",
+        "description": "Affiliate Page",
+        "actions": { "action": "sq_settings_affiliate" },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_Loading",
+        "description": "Loading JS",
+        "controllers": { "controller": "SQ_Controllers_Post" },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_BlockImport",
+        "description": "Import from other plugins",
+        "actions": {
+          "action": [
+            "sq_importseo",
+            "sq_importsettings"
+          ]
+        },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Controllers_SerpChecker",
+        "description": "Import from other plugins",
+        "actions": {
+          "action": [
+            "sq_serp_process",
+            "sq_serp_refresh",
+            "sq_serp_recheck",
+            "sq_serp_purgeall",
+            "sq_serp_refresh_post"
+          ]
+        },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_BlockSerpKeywords",
+        "description": "Use Advanced Analytics",
+        "actions": {
+          "action": [
+            "sq_serp_showignore",
+            "sq_serp_ignore",
+            "sq_serp_articlesearch",
+            "sq_serp_addkeyword"
+          ]
+        },
+        "active": "1",
+        "admin": "1"
+      },
+      {
+        "name": "SQ_Core_BlockBriefcaseKeywords",
+        "description": "Squirrly Briefcase",
+        "actions": {
+          "action": [
+            "sq_briefcase_addkeyword",
+            "sq_briefcase_addlabel",
+            "sq_briefcase_editlabel",
+            "sq_briefcase_keywordlabel",
+            "sq_briefcase_article",
+            "sq_briefcase_doresearch",
+            "sq_briefcase_deletekeyword",
+            "sq_briefcase_deletelabel"
+          ]
+        },
+        "active": "1",
+        "admin": "1"
+      }
+    ]
+  }
+}

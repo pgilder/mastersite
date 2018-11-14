@@ -1,0 +1,147 @@
+/******************* TOOLBAR ******************************/
+#wpadminbar .sq_pattern_icon {
+    float: right;
+    background: transparent url(../img/sprite.png) no-repeat -467px -50px;
+    margin: -28px -32px 0 5px;
+    cursor: pointer;
+    font-weight: bold;
+    color: brown;
+    width: 28px;
+    height: 22px;
+}
+
+#wpadminbar .sq_pattern_list ul {
+    padding: 0;
+    margin: 0;
+}
+
+#wpadminbar .sq_pattern_list li:not(.sq_notyle) {
+    cursor: pointer;
+    float: left;
+    margin: 1px 2px;
+    background-color: darkgray;
+    padding: 0 2px;
+    font-size: 11px !important;
+}
+
+#wpadminbar .sq_pattern_list li.sq_notyle {
+    float: left;
+    margin-right: 10px;
+    color: darkorange;
+    padding: 2px 0;
+}
+
+#wpadminbar #sq_settings_body div.input-group.sq_pattern_field {
+    width: 98% !important;
+}
+
+/******************* SNIPPET ******************************/
+
+#sq_blocksnippet .sq_pattern_icon,
+#sq_customize_settings .sq_pattern_icon,
+#sq_settings .sq_pattern_field .sq_pattern_icon {
+    position: absolute;
+    right: -30px;
+    top: 8px;
+    background: transparent url(../img/sprite.png) no-repeat -467px -50px;
+        cursor: pointer;
+    font-weight: bold;
+    color: brown;
+    width: 28px;
+    height: 22px;
+}
+
+.sq_pattern_icon.sq_opened {
+    background-position: -467px -74px !important;
+}
+
+#sq_customize_settings .sq_pattern_icon {
+    margin: 0;
+}
+
+#sq_customize_settings .sq_pattern_list {
+    height: 123px;
+    margin-top: 10px;
+}
+
+#sq_blocksnippet .sq_pattern_list ul,
+#sq_customize_settings .sq_pattern_list ul {
+    padding: 0;
+    margin: 0;
+}
+
+#sq_blocksnippet .sq_pattern_list li:not(.sq_notyle),
+#sq_customize_settings .sq_pattern_list li:not(.sq_notyle) {
+    cursor: pointer;
+    float: left;
+    margin-right: 5px;
+    background-color: lightgray;
+    color: #111;
+    padding: 2px;
+}
+
+#sq_blocksnippet .sq_pattern_list li.sq_notyle,
+#sq_customize_settings .sq_pattern_list li.sq_notyle {
+    float: left;
+    margin-right: 10px;
+    color: darkorange;
+    padding: 2px 0;
+}
+
+#sq_blocksnippet .sq_pattern_field,
+#sq_customize_settings .sq_pattern_field {
+    position: relative;
+}
+
+.sq_pattern_field .sq_pattern_list li.sq_patterns_selected {
+    background-color: lightblue !important;
+}
+
+/******************* SETTINGS ******************************/
+#sq_settings .sq_pattern_field {
+    position: relative;
+}
+
+#sq_settings .sq_pattern_field input,
+#sq_settings .sq_pattern_field textarea {
+    color: #555 !important;
+    background: #e2ffd6 !important;
+    border: 1px solid #ffffff;
+    padding: 5px;
+    width: 100%;
+    min-height: 22px;
+    resize: none;
+    -webkit-transition: background .2s ease-in-out;
+}
+
+#sq_settings .sq_pattern_field .sq_pattern_icon {
+    margin: 3px 0;
+}
+
+#sq_settings .sq_pattern_field .sq_pattern_list {
+    min-height: 123px;
+    margin-top: 10px;
+    width: 370px;
+}
+
+#sq_settings .sq_pattern_field .sq_pattern_list ul {
+    padding: 0;
+    margin: 0;
+}
+
+#sq_settings .sq_pattern_field .sq_pattern_list li:not(.sq_notyle) {
+    cursor: pointer;
+    float: left;
+    margin-right: 5px;
+    background-color: lightgray;
+    text-shadow: none;
+    color: #333;
+    padding: 4px;
+}
+
+#sq_settings .sq_pattern_field .sq_pattern_list li.sq_notyle {
+    float: left;
+    margin-right: 10px;
+    color: darkorange;
+    padding: 2px 0;
+}

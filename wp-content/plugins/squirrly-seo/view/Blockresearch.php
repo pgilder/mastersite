@@ -1,0 +1,1 @@
+<div id="sq_research" style="display: none"></div>
